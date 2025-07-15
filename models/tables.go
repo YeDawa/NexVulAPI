@@ -50,6 +50,7 @@ type Scans struct {
 	Recommendations string        `gorm:"type:text"`
 	SecurityScore   int           `gorm:"not null"`
 	StatusCode      int           `gorm:"not null"`
+	HttpMethod      string        `gorm:"not null;size:10"`
 	ContentType     string        `gorm:"not null;size:50"`
 	CreatedAt       time.Time     `gorm:"autoCreateTime"`
 	UpdatedAt       time.Time     `gorm:"autoUpdateTime"`
