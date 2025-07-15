@@ -9,13 +9,8 @@ import (
 	"httpshield/configs"
 )
 
-const (
-	FontURL  = "https://github.com/melroy89/Roboto/raw/refs/heads/main/RobotoTTF/Roboto-Regular.ttf"
-	FontPath = "./temp_fonts/Roboto-Regular.ttf"
-)
-
 func DownloadFontIfNeeded() error {
-	if _, err := os.Stat(FontPath); os.IsNotExist(err) {
+	if _, err := os.Stat(configs.FontPath); os.IsNotExist(err) {
 		if err := os.MkdirAll("./temp_fonts", 0755); err != nil {
 			return fmt.Errorf("failed to create font dir: %w", err)
 		}
