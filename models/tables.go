@@ -24,14 +24,14 @@ const (
 )
 
 type User struct {
-	Id        uint   `gorm:"primaryKey;autoIncrement"`
-	Username  string `gorm:"unique"`
-	Email     string `gorm:"unique;not null;size:100"`
-	Name      string `gorm:"size:255"`
-	Password  string `gorm:"not null"`
-	Plan      string `gorm:"type:varchar(20);default:'free'"`
-	Status    Status `gorm:"type:varchar(20);default:'unchecked'"`
-	Salt      string
+	Id        uint      `gorm:"primaryKey;autoIncrement"`
+	Username  string    `gorm:"unique"`
+	Email     string    `gorm:"unique;not null;size:100"`
+	Name      string    `gorm:"size:255"`
+	Password  string    `gorm:"not null"`
+	Plan      string    `gorm:"type:varchar(20);default:'free'"`
+	Status    Status    `gorm:"type:varchar(20);default:'unchecked'"`
+	Salt      string    `gorm:"unique;not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
