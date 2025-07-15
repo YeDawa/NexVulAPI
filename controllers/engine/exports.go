@@ -42,6 +42,11 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 			pdf.Ln(8)
 		}
 
+		if site.HttpMethod != "" {
+			pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("HTTP Method: %s", site.HttpMethod)))
+			pdf.Ln(8)
+		}
+
 		pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Security Score: %d%%", site.SecurityScore)))
 		pdf.Ln(10)
 
