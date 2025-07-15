@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"httpshield/utils"
+	"httpshield/configs"
 
 	"github.com/labstack/echo/v4"
 )
@@ -31,25 +32,6 @@ type MultiSiteResponse struct {
 	Sites []SiteAnalysis `json:"data"`
 }
 
-var requiredHeaders = []string{
-	"Content-Security-Policy",
-	"X-Frame-Options",
-	"Strict-Transport-Security",
-	"X-Content-Type-Options",
-	"Referrer-Policy",
-	"Permissions-Policy",
-	"X-XSS-Protection",
-	"Expect-CT",
-	"Feature-Policy",
-	"Cross-Origin-Resource-Policy",
-	"Cross-Origin-Opener-Policy",
-	"Cross-Origin-Embedder-Policy",
-	"Access-Control-Allow-Origin",
-	"Access-Control-Allow-Credentials",
-	"Access-Control-Allow-Methods",
-	"Access-Control-Allow-Headers",
-}
-
 func analyzeSingleURL(client *http.Client, targetURL string) SiteAnalysis {
 	analysis := SiteAnalysis{URL: targetURL}
 
@@ -61,9 +43,10 @@ func analyzeSingleURL(client *http.Client, targetURL string) SiteAnalysis {
 		analysis.SecurityScore = 0
 		return analysis
 	}
-	defer resp.Body.Close()
 
+	defer resp.Body.Close()
 	normalizedHeaders := make(map[string]string)
+
 	for k, v := range resp.Header {
 		if len(v) > 0 {
 			normalizedHeaders[strings.ToLower(k)] = v[0]
@@ -74,7 +57,7 @@ func analyzeSingleURL(client *http.Client, targetURL string) SiteAnalysis {
 	var recommendations []string
 	missing := 0
 
-	for _, header := range requiredHeaders {
+	for _, header := range configs.RequiredHeaders {
 		lh := strings.ToLower(header)
 		if val, ok := normalizedHeaders[lh]; ok && val != "" {
 			results = append(results, AnalysisResult{
@@ -94,7 +77,7 @@ func analyzeSingleURL(client *http.Client, targetURL string) SiteAnalysis {
 		}
 	}
 
-	total := len(requiredHeaders)
+	total := len(configs.RequiredHeaders)
 	score := int(float64(total-missing) / float64(total) * 100)
 	if score < 0 {
 		score = 0

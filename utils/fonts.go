@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+
+	"httpshield/configs"
 )
 
 const (
@@ -18,7 +20,7 @@ func DownloadFontIfNeeded() error {
 			return fmt.Errorf("failed to create font dir: %w", err)
 		}
 
-		resp, err := http.Get(FontURL)
+		resp, err := http.Get(configs.FontURL)
 		if err != nil {
 			return fmt.Errorf("failed to download font: %w", err)
 		}
@@ -28,7 +30,7 @@ func DownloadFontIfNeeded() error {
 			return fmt.Errorf("font download HTTP status: %d", resp.StatusCode)
 		}
 
-		out, err := os.Create(FontPath)
+		out, err := os.Create(configs.FontPath)
 		if err != nil {
 			return fmt.Errorf("failed to create font file: %w", err)
 		}
@@ -38,6 +40,6 @@ func DownloadFontIfNeeded() error {
 			return fmt.Errorf("failed to save font file: %w", err)
 		}
 	}
-	
+
 	return nil
 }

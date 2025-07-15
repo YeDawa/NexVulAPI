@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"httpshield/utils"
+	"httpshield/configs"
 
 	"github.com/go-pdf/fpdf"
 	"github.com/labstack/echo/v4"
@@ -18,7 +19,7 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 	}
 
 	pdf := fpdf.New("P", "mm", "A4", "")
-	pdf.AddUTF8Font("Roboto", "", utils.FontPath)
+	pdf.AddUTF8Font("Roboto", "", configs.FontPath)
 
 	pdf.SetFont("Roboto", "", 12)
 
