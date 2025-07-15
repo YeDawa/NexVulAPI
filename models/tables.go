@@ -74,6 +74,18 @@ type Exports struct {
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
+type ScansXSS struct {
+	Id        uint      `gorm:"primaryKey;autoIncrement"`
+	UserId    uint      `gorm:"not null"`
+	ScanId    uint      `gorm:"not null"`
+	Url       string    `gorm:"not null;size:255"`
+	Result    string    `gorm:"not null;size:255"`
+	Parameter string    `gorm:"not null;size:100"`
+	Payload   string    `gorm:"not null;size:255"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+}
+
 func (Users) TableName() string {
 	return "hs_users"
 }
@@ -88,4 +100,8 @@ func (Exports) TableName() string {
 
 func (CustomHeaders) TableName() string {
 	return "hs_custom_headers"
+}
+
+func (ScansXSS) TableName() string {
+	return "hs_scans_xss"
 }
