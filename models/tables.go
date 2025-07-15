@@ -49,6 +49,7 @@ type Scans struct {
 type Exports struct {
 	Id        uint      `gorm:"primaryKey;autoIncrement"`
 	UserId    uint      `gorm:"not null"`
+	FileName  string    `gorm:"unique;not null;size:255"`
 	Slug      string    `gorm:"unique;not null;size:100"`
 	ScanId    uint      `gorm:"not null;size:255"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
