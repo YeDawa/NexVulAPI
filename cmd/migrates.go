@@ -10,7 +10,7 @@ func main() {
 	configs.InitDB()
 
 	configs.DB.AutoMigrate(
-		&models.User{},
+		&models.Users{},
 		&models.Scans{},
 		&models.Exports{},
 	)

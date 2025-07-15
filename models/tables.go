@@ -23,7 +23,7 @@ const (
 	Banned    Status = "banned"
 )
 
-type User struct {
+type Users struct {
 	Id        uint      `gorm:"primaryKey;autoIncrement"`
 	Username  string    `gorm:"unique"`
 	Email     string    `gorm:"unique;not null;size:100"`
@@ -63,7 +63,7 @@ type Exports struct {
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
-func (User) TableName() string {
+func (Users) TableName() string {
 	return "hs_users"
 }
 
