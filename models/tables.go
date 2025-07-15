@@ -30,21 +30,27 @@ type User struct {
 	Name      string    `gorm:"size:255"`
 	Password  string    `gorm:"not null"`
 	ApiKey    string    `gorm:"unique;not null;size:100"`
-	Plan      string    `gorm:"type:varchar(20);default:'free'"`
+	Plan      PlanType  `gorm:"type:varchar(20);default:'free'"`
 	Status    Status    `gorm:"type:varchar(20);default:'unchecked'"`
 	Salt      string    `gorm:"unique;not null"`
+	Timezone  string    `gorm:"default:'UTC'"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
 type Scans struct {
-	Id        uint      `gorm:"primaryKey;autoIncrement"`
-	Title     string    `gorm:"not null;size:100"`
-	UserId    uint      `gorm:"not null"`
-	Slug      string    `gorm:"unique;not null;size:100"`
-	Urls      string    `gorm:"not null;size:255"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+	Id              uint          `gorm:"primaryKey;autoIncrement"`
+	Title           string        `gorm:"not null;size:100"`
+	UserId          uint          `gorm:"not null"`
+	Slug            string        `gorm:"unique;not null;size:100"`
+	Urls            string        `gorm:"not null;size:255"`
+	ExecutionTime   time.Duration `gorm:"not null"`
+	Success         bool          `gorm:"default:false"`
+	Results         string        `gorm:"type:text"`
+	Recommendations string        `gorm:"type:text"`
+	SecurityScore   int           `gorm:"not null"`
+	CreatedAt       time.Time     `gorm:"autoCreateTime"`
+	UpdatedAt       time.Time     `gorm:"autoUpdateTime"`
 }
 
 type Exports struct {
