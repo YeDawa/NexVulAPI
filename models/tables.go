@@ -29,6 +29,7 @@ type User struct {
 	Email     string    `gorm:"unique;not null;size:100"`
 	Name      string    `gorm:"size:255"`
 	Password  string    `gorm:"not null"`
+	ApiKey    string    `gorm:"unique;not null;size:100"`
 	Plan      string    `gorm:"type:varchar(20);default:'free'"`
 	Status    Status    `gorm:"type:varchar(20);default:'unchecked'"`
 	Salt      string    `gorm:"unique;not null"`
