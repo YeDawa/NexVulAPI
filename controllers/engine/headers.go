@@ -1,12 +1,12 @@
 package engine
 
 import (
-	"time"
 	"net/http"
 	"strings"
+	"time"
 
-	"httpshield/utils"
 	"httpshield/configs"
+	"httpshield/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -23,16 +23,22 @@ type AnalysisResult struct {
 
 type SiteAnalysis struct {
 	URL             string           `json:"url"`
+	ExecutionTime   time.Duration    `json:"execution_time"`
+	StatusCode      int              `json:"status_code,omitempty"`
+	ContentType     string           `json:"content_type,omitempty"`
 	Results         []AnalysisResult `json:"results"`
 	SecurityScore   int              `json:"security_score"`
 	Recommendations []string         `json:"recommendations"`
 }
 
 type MultiSiteResponse struct {
-	Sites []SiteAnalysis `json:"data"`
+	Success       bool           `json:"success"`
+	Sites         []SiteAnalysis `json:"data"`
+	ExecutionTime time.Duration  `json:"execution_time"`
 }
 
 func analyzeSingleURL(client *http.Client, targetURL string) SiteAnalysis {
+	executionStart := time.Now()
 	analysis := SiteAnalysis{URL: targetURL}
 
 	resp, err := client.Head(targetURL)
@@ -84,8 +90,11 @@ func analyzeSingleURL(client *http.Client, targetURL string) SiteAnalysis {
 	}
 
 	analysis.Results = results
+	analysis.StatusCode = resp.StatusCode
+	analysis.ContentType = resp.Header.Get("Content-Type")
 	analysis.Recommendations = recommendations
 	analysis.SecurityScore = score
+	analysis.ExecutionTime = time.Since(executionStart)
 	return analysis
 }
 
@@ -95,6 +104,7 @@ func AnalyzeHeaders(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid or missing URLs"})
 	}
 
+	startTime := time.Now()
 	client := &http.Client{Timeout: 10 * time.Second}
 	var siteAnalyses []SiteAnalysis
 
@@ -102,5 +112,10 @@ func AnalyzeHeaders(c echo.Context) error {
 		siteAnalyses = append(siteAnalyses, analyzeSingleURL(client, targetURL))
 	}
 
-	return c.JSON(http.StatusOK, MultiSiteResponse{Sites: siteAnalyses})
+	executionTime := time.Since(startTime)
+	return c.JSON(http.StatusOK, MultiSiteResponse{
+		Success:       true,
+		Sites:         siteAnalyses,
+		ExecutionTime: executionTime,
+	})
 }

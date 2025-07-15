@@ -49,8 +49,19 @@ type Scans struct {
 	Results         string        `gorm:"type:text"`
 	Recommendations string        `gorm:"type:text"`
 	SecurityScore   int           `gorm:"not null"`
+	StatusCode      int           `gorm:"not null"`
+	ContentType     string        `gorm:"not null;size:50"`
 	CreatedAt       time.Time     `gorm:"autoCreateTime"`
 	UpdatedAt       time.Time     `gorm:"autoUpdateTime"`
+}
+
+type CustomHeaders struct {
+	Id        uint      `gorm:"primaryKey;autoIncrement"`
+	UserId    uint      `gorm:"not null"`
+	Header    string    `gorm:"not null;size:100"`
+	Value     string    `gorm:"not null;size:255"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
 type Exports struct {
@@ -73,4 +84,8 @@ func (Scans) TableName() string {
 
 func (Exports) TableName() string {
 	return "hs_exports"
+}
+
+func (CustomHeaders) TableName() string {
+	return "hs_custom_headers"
 }

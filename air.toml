@@ -4,7 +4,7 @@
   bin = "main"              # Nome do binário gerado
   cmd = "go build -o main"  # Comando para construir o binário
   include = ["*.go"]       # Arquivos para monitorar
-  exclude = ["static/*"]   # Arquivos ou diretórios para ignorar
+  exclude = ["static/*", "models/*", "cmd/*"]   # Arquivos ou diretórios para ignorar
 
 [log]
   time = true              # Adiciona timestamps aos logs

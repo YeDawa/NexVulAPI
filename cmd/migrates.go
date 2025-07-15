@@ -13,6 +13,7 @@ func main() {
 		&models.Users{},
 		&models.Scans{},
 		&models.Exports{},
+		&models.CustomHeaders{},
 	)
 
 	fmt.Println("Migrate complete!")

@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"httpshield/utils"
 	"httpshield/configs"
+	"httpshield/utils"
 
 	"github.com/go-pdf/fpdf"
 	"github.com/labstack/echo/v4"
@@ -31,6 +31,16 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 
 		pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Site: %s", site.URL)))
 		pdf.Ln(8)
+
+		if site.ContentType != "" {
+			pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Content-Type: %s", site.ContentType)))
+			pdf.Ln(8)
+		}
+
+		if site.StatusCode != 0 {
+			pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("HTTP Status: %d", site.StatusCode)))
+			pdf.Ln(8)
+		}
 
 		pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Security Score: %d%%", site.SecurityScore)))
 		pdf.Ln(10)
