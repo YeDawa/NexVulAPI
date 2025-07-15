@@ -19,7 +19,6 @@ var RequiredHeaders = []string{
 	"Permissions-Policy",
 	"X-XSS-Protection",
 	"Expect-CT",
-	"Feature-Policy",
 	"Cross-Origin-Resource-Policy",
 	"Cross-Origin-Opener-Policy",
 	"Cross-Origin-Embedder-Policy",
