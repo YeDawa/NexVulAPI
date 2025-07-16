@@ -14,6 +14,7 @@ func main() {
 		&models.Scans{},
 		&models.Exports{},
 		&models.ScansXSS{},
+		&models.Payloads{},
 		&models.CustomHeaders{},
 	)
 
