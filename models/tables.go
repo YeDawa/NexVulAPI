@@ -84,6 +84,16 @@ type ScansXSS struct {
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
+type Payloads struct {
+	Id        uint      `gorm:"primaryKey;autoIncrement"`
+	Name      string    `gorm:"not null;size:100"`
+	FileName  string    `gorm:"unique;not null;size:255"`
+	Content   string    `gorm:"type:text"`
+	Type      string    `gorm:"not null;size:50"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+}
+
 func (Users) TableName() string {
 	return "hs_users"
 }
@@ -102,4 +112,8 @@ func (CustomHeaders) TableName() string {
 
 func (ScansXSS) TableName() string {
 	return "hs_scans_xss"
+}
+
+func (Payloads) TableName() string {
+	return "hs_payloads"
 }
