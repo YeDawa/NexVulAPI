@@ -23,7 +23,7 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 	pdf.SetMargins(10, 15, 10)
 	pdf.SetAutoPageBreak(true, 15)
 	pdf.AddUTF8Font("Roboto", "", configs.FontPath)
-	pdf.SetFont("Roboto", "", 12)
+	pdf.SetFont("Roboto", "", 10)
 
 	pdf.SetFooterFunc(func() {
 		pdf.SetY(-15)
@@ -38,14 +38,21 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 	for _, site := range sites {
 		pdf.AddPage()
 
-		pdf.SetFillColor(30, 90, 170)
-		pdf.SetTextColor(255, 255, 255)
-		pdf.SetFont("Roboto", "", 16)
-		pdf.CellFormat(0, 12, "Security Headers Report", "1", 1, "C", true, 0, "")
-		pdf.SetTextColor(0, 0, 0)
-		pdf.Ln(6)
+		const logoWidth = 40.0
+		pageWidth, _ := pdf.GetPageSize()
+		logoX := (pageWidth - logoWidth) / 2
 
-		pdf.SetFont("Roboto", "", 12)
+		pdf.ImageOptions(
+			configs.LogoPath,
+			logoX, 5, logoWidth, 0,
+			false,
+			fpdf.ImageOptions{ImageType: "PNG", ReadDpi: true},
+			0, "",
+		)
+
+		pdf.Ln(15)
+
+		pdf.SetFont("Roboto", "", 10)
 		pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Site: %s", site.URL)))
 		pdf.Ln(8)
 
@@ -69,9 +76,7 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 		pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Security Score: %d%%", site.SecurityScore)))
 		pdf.Ln(10)
 
-		pdf.SetFont("Roboto", "", 12)
-		pdf.Cell(0, 8, "Header Analysis")
-		pdf.Ln(8)
+		pdf.AddPage()
 
 		pdf.SetFont("Roboto", "", 11)
 		pdf.SetFillColor(230, 230, 230)
@@ -105,7 +110,7 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 
 		if len(site.Recommendations) > 0 {
 			pdf.Ln(10)
-			pdf.SetFont("Roboto", "", 12)
+			pdf.SetFont("Roboto", "", 10)
 			pdf.Cell(0, 8, "Recommendations")
 			pdf.Ln(8)
 
