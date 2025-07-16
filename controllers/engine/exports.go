@@ -117,7 +117,7 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 		pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Security Score: %d%%", site.SecurityScore)))
 		pdf.Ln(8)
 
-		pdf.Cell(0, 10, fmt.Sprintf("Execution time: %d ms", site.ExecutionTime.Milliseconds()))
+		pdf.Cell(0, 8, fmt.Sprintf("Execution time: %d ms", site.ExecutionTime.Milliseconds()))
 		pdf.Ln(8)
 
 		pdf.AddPage()
