@@ -48,6 +48,7 @@ type Scans struct {
 	Success         bool          `gorm:"default:false"`
 	Results         string        `gorm:"type:text"`
 	Recommendations string        `gorm:"type:text"`
+	Public          bool          `gorm:"default:false"`
 	CreatedAt       time.Time     `gorm:"autoCreateTime"`
 	UpdatedAt       time.Time     `gorm:"autoUpdateTime"`
 }
