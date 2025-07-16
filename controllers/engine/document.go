@@ -123,7 +123,7 @@ func GeneratePDF(sites []SiteAnalysis) ([]byte, error) {
 		pdf.SetFont("Roboto", "", 12)
 		pdf.SetFillColor(16, 19, 25)
 		pdf.SetTextColor(255, 255, 255)
-		pdf.CellFormat(0, 10, "Headers Analyze", "", 1, "L", true, 0, "")
+		pdf.CellFormat(0, 10, "Headers Analysis", "", 1, "L", true, 0, "")
 		pdf.SetTextColor(10, 15, 10)
 		pdf.Ln(4)
 
