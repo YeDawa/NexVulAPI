@@ -32,6 +32,11 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 		pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Site: %s", site.URL)))
 		pdf.Ln(8)
 
+		if site.Server != "" {
+			pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Server: %s", site.Server)))
+			pdf.Ln(8)
+		}
+
 		if site.ContentType != "" {
 			pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Content-Type: %s", site.ContentType)))
 			pdf.Ln(8)
