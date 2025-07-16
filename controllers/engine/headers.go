@@ -23,6 +23,7 @@ type AnalysisResult struct {
 
 type SiteAnalysis struct {
 	URL             string           `json:"url"`
+	Server          string           `json:"server,omitempty"`
 	HttpMethod      string           `json:"method,omitempty"`
 	ExecutionTime   time.Duration    `json:"execution_time"`
 	StatusCode      int              `json:"status_code,omitempty"`
@@ -92,6 +93,7 @@ func analyzeSingleURL(client *http.Client, targetURL string) SiteAnalysis {
 
 	analysis.Results = results
 	analysis.StatusCode = resp.StatusCode
+	analysis.Server = resp.Header.Get("Server")
 	analysis.HttpMethod = resp.Request.Method
 	analysis.ContentType = resp.Header.Get("Content-Type")
 	analysis.Recommendations = recommendations
