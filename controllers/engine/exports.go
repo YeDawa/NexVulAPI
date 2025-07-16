@@ -19,16 +19,33 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 	}
 
 	pdf := fpdf.New("P", "mm", "A4", "")
+	pdf.SetTitle("Security Headers Report", false)
+	pdf.SetMargins(10, 15, 10)
+	pdf.SetAutoPageBreak(true, 15)
 	pdf.AddUTF8Font("Roboto", "", configs.FontPath)
-
 	pdf.SetFont("Roboto", "", 12)
+
+	pdf.SetFooterFunc(func() {
+		pdf.SetY(-15)
+		pdf.SetFont("Roboto", "", 8)
+		pdf.CellFormat(0, 10,
+			fmt.Sprintf("Generated at %s — Page %d",
+				time.Now().Format("2006-01-02 15:04:05"),
+				pdf.PageNo()),
+			"", 0, "C", false, 0, "")
+	})
 
 	for _, site := range sites {
 		pdf.AddPage()
 
-		pdf.Cell(0, 10, utils.SanitizeText("Security Headers Report"))
-		pdf.Ln(12)
+		pdf.SetFillColor(30, 90, 170)
+		pdf.SetTextColor(255, 255, 255)
+		pdf.SetFont("Roboto", "", 16)
+		pdf.CellFormat(0, 12, "Security Headers Report", "1", 1, "C", true, 0, "")
+		pdf.SetTextColor(0, 0, 0)
+		pdf.Ln(6)
 
+		pdf.SetFont("Roboto", "", 12)
 		pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Site: %s", site.URL)))
 		pdf.Ln(8)
 
@@ -36,17 +53,14 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 			pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Server: %s", site.Server)))
 			pdf.Ln(8)
 		}
-
 		if site.ContentType != "" {
 			pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Content-Type: %s", site.ContentType)))
 			pdf.Ln(8)
 		}
-
 		if site.StatusCode != 0 {
 			pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("HTTP Status: %d", site.StatusCode)))
 			pdf.Ln(8)
 		}
-
 		if site.HttpMethod != "" {
 			pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("HTTP Method: %s", site.HttpMethod)))
 			pdf.Ln(8)
@@ -55,27 +69,49 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 		pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Security Score: %d%%", site.SecurityScore)))
 		pdf.Ln(10)
 
-		pdf.Cell(0, 8, utils.SanitizeText("Header Analysis"))
+		pdf.SetFont("Roboto", "", 12)
+		pdf.Cell(0, 8, "Header Analysis")
 		pdf.Ln(8)
 
-		for _, res := range site.Results {
-			pdf.Cell(0, 6, utils.SanitizeText(fmt.Sprintf("%s: %s", res.Header, res.Status)))
-			pdf.Ln(6)
+		pdf.SetFont("Roboto", "", 11)
+		pdf.SetFillColor(230, 230, 230)
+		pdf.CellFormat(70, 8, "Header", "1", 0, "", true, 0, "")
+		pdf.CellFormat(30, 8, "Status", "1", 0, "", true, 0, "")
+		pdf.CellFormat(90, 8, "Note", "1", 1, "", true, 0, "")
+		pdf.SetFont("Roboto", "", 10)
 
-			if res.Note != "" {
-				pdf.SetFont("Roboto", "", 10)
-				pdf.MultiCell(0, 5, utils.SanitizeText("→ "+res.Note), "", "", false)
-				pdf.SetFont("Roboto", "", 12)
-			}
+		for _, res := range site.Results {
+			x := pdf.GetX()
+			y := pdf.GetY()
+
+			note := utils.SanitizeText(res.Note)
+			noteLines := pdf.SplitLines([]byte(note), 90)
+			lineHeight := float64(6)
+			rowHeight := float64(len(noteLines)) * lineHeight
+
+			pdf.Rect(x, y, 70, rowHeight, "")
+			pdf.MultiCell(70, lineHeight, utils.SanitizeText(res.Header), "", "", false)
+			pdf.SetXY(x+70, y)
+
+			pdf.Rect(x+70, y, 30, rowHeight, "")
+			pdf.MultiCell(30, lineHeight, utils.SanitizeText(res.Status), "", "", false)
+			pdf.SetXY(x+100, y)
+
+			pdf.Rect(x+100, y, 90, rowHeight, "")
+			pdf.MultiCell(90, lineHeight, note, "", "", false)
+
+			pdf.SetY(y + rowHeight)
 		}
 
 		if len(site.Recommendations) > 0 {
-			pdf.Ln(8)
-			pdf.Cell(0, 8, utils.SanitizeText("Recommendations"))
+			pdf.Ln(10)
+			pdf.SetFont("Roboto", "", 12)
+			pdf.Cell(0, 8, "Recommendations")
 			pdf.Ln(8)
 
+			pdf.SetFont("Roboto", "", 10)
 			for _, rec := range site.Recommendations {
-				pdf.MultiCell(0, 5, utils.SanitizeText("• "+rec), "", "", false)
+				pdf.MultiCell(0, 5, "• "+utils.SanitizeText(rec), "", "", false)
 			}
 		}
 	}

@@ -16,7 +16,7 @@ func main() {
 
 	// Enable CORS with credentials support
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:8080", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:8080", "https://httpshield.net", "http://localhost:5173"},
+		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:8080", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:8080", "https://monlib.net", "http://localhost:5173"},
 		AllowMethods:     []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS, echo.HEAD, echo.PATCH},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization, "Cookie", "Set-Cookie"},
 		ExposeHeaders:    []string{"Set-Cookie", "Authorization"},
