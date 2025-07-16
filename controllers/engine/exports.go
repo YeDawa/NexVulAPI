@@ -20,11 +20,46 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 
 	pdf := fpdf.New("P", "mm", "A4", "")
 	pdf.SetTitle("Security Headers Report", false)
-	
+
+	pdf.AddPage()
+
+	const logoWidth = 40.0
+	pageWidth, _ := pdf.GetPageSize()
+	logoX := (pageWidth - logoWidth) / 2
+
+	pdf.ImageOptions(
+		configs.LogoPath,
+		logoX, 5, logoWidth, 0,
+		false,
+		fpdf.ImageOptions{ImageType: "PNG", ReadDpi: true},
+		0, "",
+	)
+
+	pdf.Ln(15)
+
 	pdf.SetMargins(10, 15, 10)
 	pdf.SetAutoPageBreak(true, 15)
 	pdf.AddUTF8Font("Roboto", "", configs.FontPath)
 	pdf.SetFont("Roboto", "", 10)
+
+	pdf.SetFillColor(0, 102, 204)
+	pdf.CellFormat(0, 10, "Security Headers Report", "", 1, "C", true, 0, "")
+	pdf.Ln(10)
+
+	pdf.SetFont("Roboto", "", 10)
+	pdf.Cell(0, 10, fmt.Sprintf("Generated on: %s", time.Now().Format("2006-01-02 15:04:05")))
+	pdf.Ln(8)
+
+	pdf.SetFont("Roboto", "", 10)
+	pdf.Cell(0, 10, fmt.Sprintf("Total Sites Analyzed: %d", len(sites)))
+	pdf.Ln(8)
+
+	pdf.SetFont("Roboto", "", 10)
+	var totalExecutionTime int64
+	for _, site := range sites {
+		totalExecutionTime += site.ExecutionTime.Milliseconds()
+	}
+	pdf.Cell(0, 10, fmt.Sprintf("Total execution time: %d ms", totalExecutionTime))
 
 	pdf.SetFooterFunc(func() {
 		pdf.SetY(-15)
@@ -38,20 +73,6 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 
 	for _, site := range sites {
 		pdf.AddPage()
-
-		const logoWidth = 40.0
-		pageWidth, _ := pdf.GetPageSize()
-		logoX := (pageWidth - logoWidth) / 2
-
-		pdf.ImageOptions(
-			configs.LogoPath,
-			logoX, 5, logoWidth, 0,
-			false,
-			fpdf.ImageOptions{ImageType: "PNG", ReadDpi: true},
-			0, "",
-		)
-
-		pdf.Ln(15)
 
 		pdf.SetFont("Roboto", "", 10)
 		pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Site: %s", site.URL)))
@@ -75,7 +96,10 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 		}
 
 		pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Security Score: %d%%", site.SecurityScore)))
-		pdf.Ln(10)
+		pdf.Ln(8)
+
+		pdf.Cell(0, 10, fmt.Sprintf("Execution time: %d ms", site.ExecutionTime.Milliseconds()))
+		pdf.Ln(8)
 
 		pdf.AddPage()
 
