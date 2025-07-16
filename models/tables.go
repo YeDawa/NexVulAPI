@@ -47,12 +47,7 @@ type Scans struct {
 	ExecutionTime   time.Duration `gorm:"not null"`
 	Success         bool          `gorm:"default:false"`
 	Results         string        `gorm:"type:text"`
-	Server          string        `gorm:"size:100"`
 	Recommendations string        `gorm:"type:text"`
-	SecurityScore   int           `gorm:"not null"`
-	StatusCode      int           `gorm:"not null"`
-	HttpMethod      string        `gorm:"not null;size:10"`
-	ContentType     string        `gorm:"not null;size:50"`
 	CreatedAt       time.Time     `gorm:"autoCreateTime"`
 	UpdatedAt       time.Time     `gorm:"autoUpdateTime"`
 }
