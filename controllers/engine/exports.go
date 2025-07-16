@@ -20,6 +20,7 @@ func GenerateMultiSitePDF(sites []SiteAnalysis) ([]byte, error) {
 
 	pdf := fpdf.New("P", "mm", "A4", "")
 	pdf.SetTitle("Security Headers Report", false)
+	
 	pdf.SetMargins(10, 15, 10)
 	pdf.SetAutoPageBreak(true, 15)
 	pdf.AddUTF8Font("Roboto", "", configs.FontPath)
