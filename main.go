@@ -1,12 +1,10 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	"httpshield/configs"
 
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
@@ -35,10 +33,6 @@ func main() {
 			return next(c)
 		}
 	})
-
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, trying to use system environment variables")
-	}
 
 	e.POST("/scan", scans.AnalyzeHeaders)
 	e.GET("/scan/:id", get_scan.GetScanDetails)
