@@ -169,7 +169,7 @@ func AnalyzeHeaders(c echo.Context) error {
 
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"success":        true,
-		"slug":           slug,
+		"id":             slug,
 		"data":           siteAnalyses,
 		"execution_time": executionTime,
 		"html_page":      utils.GetScanPage(slug),

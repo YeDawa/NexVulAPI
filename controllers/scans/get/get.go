@@ -32,7 +32,7 @@ type ScanData struct {
 }
 
 type ScanResponse struct {
-	Slug      string     `json:"slug"`
+	Id        string     `json:"id"`
 	Data      []ScanData `json:"data"`
 	Urls      []string   `json:"urls"`
 	HtmlPage  string     `json:"html_page"`
@@ -77,9 +77,9 @@ func GetScanDetails(c echo.Context) error {
 			"error":   "Failed to deserialize 'urls' field: " + err.Error(),
 		})
 	}
-
+	
 	response := ScanResponse{
-		Slug:      scans.Slug,
+		Id:        scans.Slug,
 		Data:      scanData,
 		Urls:      urls,
 		Public:    scans.Public,
