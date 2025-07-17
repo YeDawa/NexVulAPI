@@ -8,6 +8,7 @@ import (
 	"httpshield/models"
 	"httpshield/configs"
 	"httpshield/security"
+	"httpshield/generator"
 
 	"github.com/labstack/echo/v4"
 )
@@ -36,11 +37,14 @@ func CreateUser(c echo.Context) error {
 		})
 	}
 
+	apiKey := "hs_" + generator.String(32, 36)
 	salt, _ := security.GenerateRandomSalt(16)
+	
 	newUser := models.Users{
 		Name:     req.Name,
 		Username: req.Username,
 		Email:    req.Email,
+		ApiKey:   apiKey,
 		Password: security.HashPassword(req.Password, salt),
 		Salt:     base64.StdEncoding.EncodeToString(salt),
 	}

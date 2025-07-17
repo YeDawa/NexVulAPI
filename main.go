@@ -9,7 +9,8 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	"httpshield/controllers/scans"
-	"httpshield/controllers/scans/get"
+	get_scan "httpshield/controllers/scans/get"
+	"httpshield/controllers/users"
 )
 
 func main() {
@@ -34,6 +35,12 @@ func main() {
 		}
 	})
 
+	// API's Users
+	e.POST("/login", users.Login)
+	e.POST("/register", users.CreateUser)
+	e.DELETE("/users/logoff", users.Logoff)
+
+	// API's Scans
 	e.POST("/scan", scans.AnalyzeHeaders)
 	e.GET("/scan/:id", get_scan.GetScanDetails)
 	e.GET("/scan/:id/export", get_scan.GenerateReport)
