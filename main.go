@@ -40,6 +40,7 @@ func main() {
 	e.POST("/login", users.Login)
 	e.POST("/register", users.CreateUser)
 	e.DELETE("/users/logoff", users.Logoff)
+	e.GET("/users/check/:user", users.CheckUsername)
 
 	// API's User Autenticated Content
 	e.GET("/users/me", profile.UserLogged)
