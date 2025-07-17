@@ -36,7 +36,7 @@ func main() {
 
 	e.POST("/scan", scans.AnalyzeHeaders)
 	e.GET("/scan/:id", get_scan.GetScanDetails)
-	e.POST("/export", scans.ExportPDF)
+	e.GET("/scan/:id/export", get_scan.GenerateReport)
 
 	e.Start(":" + os.Getenv("PORT"))
 }

@@ -1,4 +1,4 @@
-package scans
+package generator
 
 import (
 	"bytes"
@@ -6,12 +6,13 @@ import (
 	"time"
 
 	"httpshield/configs"
+	"httpshield/tasks"
 	"httpshield/utils"
 
 	"github.com/go-pdf/fpdf"
 )
 
-func GeneratePDF(sites []SiteAnalysis) ([]byte, error) {
+func GeneratePDF(sites []tasks.SiteAnalysis) ([]byte, error) {
 	if err := utils.DownloadFontIfNeeded(); err != nil {
 		return nil, fmt.Errorf("font download error: %w", err)
 	}
