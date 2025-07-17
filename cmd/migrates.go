@@ -9,7 +9,7 @@ import (
 func main() {
 	configs.InitDB()
 
-	// configs.DB.Migrator().DropTable(&models.Scans{})
+	configs.DB.Migrator().DropTable(&models.Scans{})
 
 	configs.DB.AutoMigrate(
 		&models.Users{},

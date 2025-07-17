@@ -40,11 +40,9 @@ type Users struct {
 
 type Scans struct {
 	Id            uint          `gorm:"primaryKey;autoIncrement"`
-	Title         string        `gorm:"not null;size:100"`
 	UserId        uint          `gorm:"not null"`
 	Slug          string        `gorm:"unique;not null;size:100"`
 	Urls          string        `gorm:"not null;size:255"`
-	ExecutionTime time.Duration `gorm:"not null"`
 	Data          string        `gorm:"type:text"`
 	Public        bool          `gorm:"default:false"`
 	CreatedAt     time.Time     `gorm:"autoCreateTime"`

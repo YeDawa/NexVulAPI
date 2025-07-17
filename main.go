@@ -4,15 +4,19 @@ import (
 	"log"
 	"os"
 
+	"httpshield/configs"
+
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"httpshield/controllers/engine"
+	"httpshield/controllers/scans"
+	"httpshield/controllers/scans/get"
 )
 
 func main() {
 	e := echo.New()
+	configs.InitDB()
 
 	// Enable CORS with credentials support
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -36,8 +40,9 @@ func main() {
 		log.Println("No .env file found, trying to use system environment variables")
 	}
 
-	e.POST("/headers", engine.AnalyzeHeaders)
-	e.POST("/export", engine.ExportPDF)
+	e.POST("/scan", scans.AnalyzeHeaders)
+	e.GET("/scan/:id", get_scan.GetScanDetails)
+	e.POST("/export", scans.ExportPDF)
 
 	e.Start(":" + os.Getenv("PORT"))
 }
