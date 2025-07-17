@@ -32,13 +32,14 @@ type ScanData struct {
 }
 
 type ScanResponse struct {
-	Id        string     `json:"id"`
-	Data      []ScanData `json:"data"`
-	Urls      []string   `json:"urls"`
-	HtmlPage  string     `json:"html_page"`
-	ApiPage   string     `json:"api_page"`
-	Public    bool       `json:"public"`
-	CreatedAt string     `json:"created_at"`
+	Id         string     `json:"id"`
+	Data       []ScanData `json:"data"`
+	Urls       []string   `json:"urls"`
+	HtmlPage   string     `json:"html_page"`
+	ReportPage string     `json:"report_page"`
+	ApiPage    string     `json:"api_page"`
+	Public     bool       `json:"public"`
+	CreatedAt  string     `json:"created_at"`
 }
 
 func GetScanDetails(c echo.Context) error {
@@ -77,15 +78,16 @@ func GetScanDetails(c echo.Context) error {
 			"error":   "Failed to deserialize 'urls' field: " + err.Error(),
 		})
 	}
-	
+
 	response := ScanResponse{
-		Id:        scans.Slug,
-		Data:      scanData,
-		Urls:      urls,
-		Public:    scans.Public,
-		HtmlPage:  utils.GetScanPage(scans.Slug),
-		ApiPage:   utils.GetScanApiPage(c, scans.Slug),
-		CreatedAt: scans.CreatedAt.Format(time.RFC3339),
+		Id:         scans.Slug,
+		Data:       scanData,
+		Urls:       urls,
+		Public:     scans.Public,
+		HtmlPage:   utils.GetScanPage(scans.Slug),
+		ApiPage:    utils.GetScanApiPage(c, scans.Slug),
+		ReportPage: utils.GetScanApiReportPage(c, scans.Slug),
+		CreatedAt:  scans.CreatedAt.Format(time.RFC3339),
 	}
 
 	return c.JSON(http.StatusOK, response)
