@@ -39,18 +39,15 @@ type Users struct {
 }
 
 type Scans struct {
-	Id              uint          `gorm:"primaryKey;autoIncrement"`
-	Title           string        `gorm:"not null;size:100"`
-	UserId          uint          `gorm:"not null"`
-	Slug            string        `gorm:"unique;not null;size:100"`
-	Urls            string        `gorm:"not null;size:255"`
-	ExecutionTime   time.Duration `gorm:"not null"`
-	Success         bool          `gorm:"default:false"`
-	Results         string        `gorm:"type:text"`
-	Recommendations string        `gorm:"type:text"`
-	Public          bool          `gorm:"default:false"`
-	CreatedAt       time.Time     `gorm:"autoCreateTime"`
-	UpdatedAt       time.Time     `gorm:"autoUpdateTime"`
+	Id            uint          `gorm:"primaryKey;autoIncrement"`
+	Title         string        `gorm:"not null;size:100"`
+	UserId        uint          `gorm:"not null"`
+	Slug          string        `gorm:"unique;not null;size:100"`
+	Urls          string        `gorm:"not null;size:255"`
+	ExecutionTime time.Duration `gorm:"not null"`
+	Data          string        `gorm:"type:text"`
+	Public        bool          `gorm:"default:false"`
+	CreatedAt     time.Time     `gorm:"autoCreateTime"`
 }
 
 type CustomHeaders struct {
@@ -59,17 +56,15 @@ type CustomHeaders struct {
 	Header    string    `gorm:"not null;size:100"`
 	Value     string    `gorm:"not null;size:255"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
-type Exports struct {
+type Reports struct {
 	Id        uint      `gorm:"primaryKey;autoIncrement"`
 	UserId    uint      `gorm:"not null"`
 	FileName  string    `gorm:"unique;not null;size:255"`
 	Slug      string    `gorm:"unique;not null;size:100"`
 	ScanId    uint      `gorm:"not null;size:255"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
 type ScansXSS struct {
@@ -81,7 +76,6 @@ type ScansXSS struct {
 	Parameter string    `gorm:"not null;size:100"`
 	Payload   string    `gorm:"not null;size:255"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
 type Payloads struct {
@@ -91,7 +85,6 @@ type Payloads struct {
 	Content   string    `gorm:"type:text"`
 	Type      string    `gorm:"not null;size:50"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
 func (Users) TableName() string {
@@ -102,8 +95,8 @@ func (Scans) TableName() string {
 	return "hs_scans"
 }
 
-func (Exports) TableName() string {
-	return "hs_exports"
+func (Reports) TableName() string {
+	return "hs_reports"
 }
 
 func (CustomHeaders) TableName() string {
