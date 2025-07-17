@@ -10,7 +10,7 @@ import (
 
 	"httpshield/controllers/profile"
 	"httpshield/controllers/scans"
-	"httpshield/controllers/scans/get"
+	get_scan "httpshield/controllers/scans/get"
 	"httpshield/controllers/users"
 )
 
@@ -20,7 +20,9 @@ func main() {
 
 	// Enable CORS with credentials support
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"*"},
+		AllowOriginFunc: func(origin string) (bool, error) {
+			return true, nil
+		},
 		AllowMethods:     []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS, echo.HEAD, echo.PATCH},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization, "Cookie", "Set-Cookie"},
 		ExposeHeaders:    []string{"Set-Cookie", "Authorization"},
