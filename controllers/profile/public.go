@@ -10,7 +10,6 @@ import (
 
 	"httpshield/controllers/users"
 
-	"github.com/drexedam/gravatar"
 	"github.com/labstack/echo/v4"
 )
 
@@ -62,7 +61,7 @@ func ProfilePublic(c echo.Context) error {
 	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND public = 'true'", uint(userIDUint)).Count(&totalScans)
 
 	ProfileDetails := ProfileDetails{
-		Avatar:     gravatar.New(UserInfo.Email).Size(300).AvatarURL(),
+		Avatar:     users.GetAvatarByID(UserInfo.Id),
 		PublicName: profile.PublicName,
 		Website:    profile.Website,
 		Bio:        profile.Bio,
