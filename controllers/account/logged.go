@@ -1,4 +1,4 @@
-package profile
+package account
 
 import (
 	"encoding/base64"

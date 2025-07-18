@@ -8,10 +8,10 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
+	"httpshield/controllers/account"
 	"httpshield/controllers/profile"
 	"httpshield/controllers/scans"
 	"httpshield/controllers/scans/get"
-	"httpshield/controllers/profile/public"
 	"httpshield/controllers/users"
 )
 
@@ -46,7 +46,7 @@ func main() {
 	e.GET("/users/check/:user", users.CheckUsername)
 
 	// API's User Autenticated Content
-	e.GET("/users/me", profile.UserLogged)
+	e.GET("/users/me", account.UserLogged)
 
 	// API's Scans
 	e.POST("/scan", scans.AnalyzeHeaders)
@@ -54,8 +54,8 @@ func main() {
 	e.GET("/scan/:id/export", get_scan.GenerateReport)
 
 	// API's Profile
-	e.GET("/user/:user", public_profile.ProfilePublic)
-	e.GET("/user/:user/scans", public_profile.ListPublicScans)
+	e.GET("/user/:user", profile.ProfilePublic)
+	e.GET("/user/:user/scans", profile.ListPublicScans)
 
 	e.Start(":" + os.Getenv("PORT"))
 }

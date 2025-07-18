@@ -1,4 +1,4 @@
-package public_profile
+package profile
 
 import (
 	"encoding/json"
