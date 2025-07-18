@@ -44,7 +44,6 @@ func ProfilePublic(c echo.Context) error {
 			"error":   "Invalid user ID",
 		})
 	}
-	userEmail := users.GetEmailByID(uint(userIDUint))
 
 	var UserInfo models.Users
 	var profile models.Profile
@@ -63,7 +62,7 @@ func ProfilePublic(c echo.Context) error {
 	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND public = 'true'", uint(userIDUint)).Count(&totalScans)
 
 	ProfileDetails := ProfileDetails{
-		Avatar:     gravatar.New(userEmail).Size(300).AvatarURL(),
+		Avatar:     gravatar.New(UserInfo.Email).Size(300).AvatarURL(),
 		PublicName: profile.PublicName,
 		Website:    profile.Website,
 		Bio:        profile.Bio,
