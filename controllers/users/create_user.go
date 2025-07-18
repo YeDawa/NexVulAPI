@@ -1,14 +1,15 @@
 package users
 
 import (
-	"net/http"
 	"encoding/base64"
-	
-	"httpshield/core"
-	"httpshield/models"
+	"net/http"
+	"strconv"
+
 	"httpshield/configs"
-	"httpshield/security"
+	"httpshield/core"
 	"httpshield/generator"
+	"httpshield/models"
+	"httpshield/security"
 
 	"github.com/labstack/echo/v4"
 )
@@ -39,7 +40,7 @@ func CreateUser(c echo.Context) error {
 
 	apiKey := "hs_" + generator.String(32, 36)
 	salt, _ := security.GenerateRandomSalt(16)
-	
+
 	newUser := models.Users{
 		Name:     req.Name,
 		Username: req.Username,
@@ -57,6 +58,21 @@ func CreateUser(c echo.Context) error {
 		})
 	}
 
+	userId := GetUserIDByUsername(req.Username)
+	userIdUint, err := strconv.ParseUint(userId, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"error":   "Failed to convert userId to uint",
+		})
+	}
+	newProfile := models.Profile{
+		UserId:     uint(userIdUint),
+		PublicName: req.Name,
+		Contact:    req.Email,
+	}
+
+	configs.DB.Create(&newProfile)
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"success": true,
 		"message": "User created successfully",

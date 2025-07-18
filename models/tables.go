@@ -39,13 +39,13 @@ type Users struct {
 }
 
 type Scans struct {
-	Id            uint          `gorm:"primaryKey;autoIncrement"`
-	UserId        uint          `gorm:"not null"`
-	Slug          string        `gorm:"unique;not null;size:100"`
-	Urls          string        `gorm:"not null;size:255"`
-	Data          string        `gorm:"type:text"`
-	Public        bool          `gorm:"default:false"`
-	CreatedAt     time.Time     `gorm:"autoCreateTime"`
+	Id        uint      `gorm:"primaryKey;autoIncrement"`
+	UserId    uint      `gorm:"not null"`
+	Slug      string    `gorm:"unique;not null;size:100"`
+	Urls      string    `gorm:"not null;size:255"`
+	Data      string    `gorm:"type:text"`
+	Public    bool      `gorm:"default:false"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
 }
 
 type CustomHeaders struct {
@@ -85,6 +85,19 @@ type Payloads struct {
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 }
 
+type Profile struct {
+	Id         uint   `gorm:"primaryKey,autoIncrement"`
+	UserId     uint   `gorm:"not null"`
+	Bio        string `json:"bio"`
+	Location   string `json:"location"`
+	Website    string `json:"website"`
+	Contact    string `json:"contact"`
+	PublicName string `json:"public_name"`
+	Twitter    string `json:"twitter"`
+	Github     string `json:"github"`
+	Linkedin   string `json:"linkedin"`
+}
+
 func (Users) TableName() string {
 	return "hs_users"
 }
@@ -107,4 +120,8 @@ func (ScansXSS) TableName() string {
 
 func (Payloads) TableName() string {
 	return "hs_payloads"
+}
+
+func (Profile) TableName() string {
+	return "hs_profile"
 }

@@ -36,6 +36,15 @@ func UserLogged(c echo.Context) error {
 		})
 	}
 
+	var profile models.Profile
+	resultProfile := configs.DB.Where("id = ?", userID).First(&profile)
+	if resultProfile.Error != nil {
+		return c.JSON(http.StatusNotFound, map[string]interface{}{
+			"success": false,
+			"error":   "User not found",
+		})
+	}
+
 	query := configs.DB.Where("user_id = ?", userID)
 
 	var totalScans int64
@@ -43,6 +52,17 @@ func UserLogged(c echo.Context) error {
 
 	stats := map[string]int64{
 		"scans": totalScans,
+	}
+
+	profileData := map[string]string{
+		"public_name": profile.PublicName,
+		"contact":     profile.Contact,
+		"linkedin":    profile.Linkedin,
+		"website":     profile.Website,
+		"bio":         profile.Bio,
+		"location":    profile.Location,
+		"github":      profile.Github,
+		"twitter":     profile.Twitter,
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -55,6 +75,7 @@ func UserLogged(c echo.Context) error {
 		"created_at":  user.CreatedAt,
 		"api_key":     user.ApiKey,
 		"avatar":      gravatar.New(user.Email).Size(300).AvatarURL(),
+		"profile":     profileData,
 		"stats":       stats,
 	})
 }
