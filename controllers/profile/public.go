@@ -30,7 +30,7 @@ type ProfileDetails struct {
 }
 
 type ProfileStats struct {
-	Owned     int64 `json:"owned"`
+	Owned int64 `json:"owned"`
 }
 
 func ProfilePublic(c echo.Context) error {
@@ -74,10 +74,11 @@ func ProfilePublic(c echo.Context) error {
 		CreatedAt:  UserInfo.CreatedAt.Local().Format(time.RFC3339),
 		Twitter:    profile.Twitter,
 		Github:     profile.Github,
+		Linkedin:   profile.Linkedin,
 	}
 
 	ProfileStats := ProfileStats{
-		Owned:     totalScans,
+		Owned: totalScans,
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
