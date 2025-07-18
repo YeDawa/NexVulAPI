@@ -60,7 +60,7 @@ func ProfilePublic(c echo.Context) error {
 	}
 
 	var totalScans int64
-	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND privacy = 'public'", uint(userIDUint)).Count(&totalScans)
+	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND public = 'true'", uint(userIDUint)).Count(&totalScans)
 
 	ProfileDetails := ProfileDetails{
 		Avatar:     gravatar.New(userEmail).Size(300).AvatarURL(),
