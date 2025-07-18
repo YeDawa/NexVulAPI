@@ -52,5 +52,8 @@ func main() {
 	e.GET("/scan/:id", get_scan.GetScanDetails)
 	e.GET("/scan/:id/export", get_scan.GenerateReport)
 
+	// API's Profile
+	e.GET("/user/:user", profile.ProfilePublic)
+
 	e.Start(":" + os.Getenv("PORT"))
 }
