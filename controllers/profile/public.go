@@ -70,7 +70,6 @@ func ProfilePublic(c echo.Context) error {
 		Location:   profile.Location,
 		Contact:    profile.Contact,
 		Plan:       string(UserInfo.Plan),
-		Status:     string(UserInfo.Status),
 		CreatedAt:  UserInfo.CreatedAt.Local().Format(time.RFC3339),
 		Twitter:    profile.Twitter,
 		Github:     profile.Github,
