@@ -10,7 +10,8 @@ import (
 
 	"httpshield/controllers/profile"
 	"httpshield/controllers/scans"
-	get_scan "httpshield/controllers/scans/get"
+	"httpshield/controllers/scans/get"
+	"httpshield/controllers/profile/public"
 	"httpshield/controllers/users"
 )
 
@@ -53,7 +54,8 @@ func main() {
 	e.GET("/scan/:id/export", get_scan.GenerateReport)
 
 	// API's Profile
-	e.GET("/user/:user", profile.ProfilePublic)
+	e.GET("/user/:user", public_profile.ProfilePublic)
+	e.GET("/user/:user/scans", public_profile.ListPublicScans)
 
 	e.Start(":" + os.Getenv("PORT"))
 }

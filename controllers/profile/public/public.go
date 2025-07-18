@@ -1,4 +1,4 @@
-package profile
+package public_profile
 
 import (
 	"net/http"
