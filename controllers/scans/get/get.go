@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"httpshield/configs"
+	"httpshield/controllers/users"
 	"httpshield/models"
 	"httpshield/utils"
 
@@ -39,7 +40,14 @@ type ScanResponse struct {
 	ReportPage string     `json:"report_page"`
 	ApiPage    string     `json:"api_page"`
 	Public     bool       `json:"public"`
+	Owner      ScanOwner  `json:"owner"`
 	CreatedAt  string     `json:"created_at"`
+}
+
+type ScanOwner struct {
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
+	Name     string `json:"name"`
 }
 
 func GetScanDetails(c echo.Context) error {
@@ -79,11 +87,26 @@ func GetScanDetails(c echo.Context) error {
 		})
 	}
 
+	var user models.Users
+	if err := configs.DB.Where("id = ?", scans.UserId).First(&user).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
+		})
+	}
+
+	owner := ScanOwner{
+		Name:     user.Name,
+		Username: user.Username,
+		Avatar:   users.GetAvatarByID(user.Id),
+	}
+
 	response := ScanResponse{
 		Id:         scans.Slug,
 		Data:       scanData,
 		Urls:       urls,
 		Public:     scans.Public,
+		Owner:      owner,
 		HtmlPage:   utils.GetScanPage(scans.Slug),
 		ApiPage:    utils.GetScanApiPage(c, scans.Slug),
 		ReportPage: utils.GetScanApiReportPage(c, scans.Slug),
