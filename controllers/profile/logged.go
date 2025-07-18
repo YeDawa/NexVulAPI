@@ -45,13 +45,18 @@ func UserLogged(c echo.Context) error {
 		})
 	}
 
-	query := configs.DB.Where("user_id = ?", userID)
-
 	var totalScans int64
-	query.Model(&models.Scans{}).Count(&totalScans)
+	var publicScans int64
+	var privateScans int64
+
+	configs.DB.Model(&models.Scans{}).Where("user_id = ?", userID).Count(&totalScans)
+	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND public = 'true'", userID).Count(&publicScans)
+	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND public = 'false'", userID).Count(&privateScans)
 
 	stats := map[string]int64{
-		"scans": totalScans,
+		"total":   totalScans,
+		"public":  publicScans,
+		"private": privateScans,
 	}
 
 	profileData := map[string]string{
@@ -66,16 +71,16 @@ func UserLogged(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"success":     true,
-		"name":        user.Name,
-		"username":    user.Username,
-		"plan":        user.Plan,
-		"email":       user.Email,
-		"status":      user.Status,
-		"created_at":  user.CreatedAt,
-		"api_key":     user.ApiKey,
-		"avatar":      gravatar.New(user.Email).Size(300).AvatarURL(),
-		"profile":     profileData,
-		"stats":       stats,
+		"success":    true,
+		"name":       user.Name,
+		"username":   user.Username,
+		"plan":       user.Plan,
+		"email":      user.Email,
+		"status":     user.Status,
+		"created_at": user.CreatedAt,
+		"api_key":    user.ApiKey,
+		"avatar":     gravatar.New(user.Email).Size(300).AvatarURL(),
+		"profile":    profileData,
+		"stats":      stats,
 	})
 }
