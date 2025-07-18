@@ -12,6 +12,10 @@ func GetScanPage(id string) string {
 	return fmt.Sprintf("%sscan/%s", configs.HTMLPageURI, id)
 }
 
+func GetOwnerProfilePage(user string) string {
+	return fmt.Sprintf("%suser/%s", configs.HTMLPageURI, user)
+}
+
 func GetScanApiPage(c echo.Context, id string) string {
 	return fmt.Sprintf("%s/scan/%s", configs.GetRootURL(c), id)
 }

@@ -45,6 +45,7 @@ type ScanResponse struct {
 }
 
 type ScanOwner struct {
+	Profile  string `json:"html_page"`
 	Username string `json:"username"`
 	Avatar   string `json:"avatar"`
 	Name     string `json:"name"`
@@ -99,6 +100,7 @@ func GetScanDetails(c echo.Context) error {
 		Name:     user.Name,
 		Username: user.Username,
 		Avatar:   users.GetAvatarByID(user.Id),
+		Profile:  utils.GetOwnerProfilePage(user.Username),
 	}
 
 	response := ScanResponse{
