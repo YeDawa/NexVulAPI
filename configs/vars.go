@@ -4,9 +4,9 @@ import "github.com/labstack/echo/v4"
 
 const (
 	UserCookieName = "3LwqrpZpHXK9z2pvX4"
-	DomainName     = ".httpshield.net"
+	DomainName     = ".nexvul.com"
 	LogoPath       = "./assets/logo.png"
-	HTMLPageURI    = "https://httpshield.net/"
+	HTMLPageURI    = "https://nexvul.com/"
 	FontURL        = "https://github.com/melroy89/Roboto/raw/refs/heads/main/RobotoTTF/Roboto-Regular.ttf"
 	FontPath       = "./temp_fonts/Roboto-Regular.ttf"
 )
