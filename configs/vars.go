@@ -3,6 +3,7 @@ package configs
 import "github.com/labstack/echo/v4"
 
 const (
+	ProductName    = "NexVul"
 	UserCookieName = "3LwqrpZpHXK9z2pvX4"
 	DomainName     = ".nexvul.com"
 	LogoPath       = "./assets/logo.png"
