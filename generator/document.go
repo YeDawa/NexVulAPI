@@ -36,7 +36,7 @@ func GeneratePDF(sites []tasks.SiteAnalysis) ([]byte, error) {
 		0, "",
 	)
 
-	pdf.Ln(15)
+	pdf.Ln(36)
 
 	pdf.SetMargins(10, 15, 10)
 	pdf.SetAutoPageBreak(true, 15)
