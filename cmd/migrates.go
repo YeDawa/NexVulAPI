@@ -20,6 +20,7 @@ func main() {
 		&models.Payloads{},
 		&models.CustomHeaders{},
 		&models.CustomWordlists{},
+		&models.DefaultWordLists{},
 	)
 
 	fmt.Println("Migrate complete!")
