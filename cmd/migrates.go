@@ -19,6 +19,7 @@ func main() {
 		&models.ScansXSS{},
 		&models.Payloads{},
 		&models.CustomHeaders{},
+		&models.CustomWordlists{},
 	)
 
 	fmt.Println("Migrate complete!")
