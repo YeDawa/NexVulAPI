@@ -57,6 +57,12 @@ type ScanOwner struct {
 	Name     string `json:"name"`
 }
 
+type SubdomainInfo struct {
+	Domain    string `json:"domain"`
+	Subdomain string `json:"subdomain"`
+	SSL       bool   `json:"ssl"`
+}
+
 func GetScanDetails(c echo.Context) error {
 	id := c.Param("id")
 
@@ -81,25 +87,15 @@ func GetScanDetails(c echo.Context) error {
 	var urls []string
 	var domainGroups []DomainGroup
 
-	// Processa subdomains apenas se não estiver vazio
 	if scans.Subdomains != "" {
-		type SubdomainInfo struct {
-			Domain    string `json:"domain"`
-			Subdomain string `json:"subdomain"`
-			SSL       bool   `json:"ssl"`
-		}
-
 		var subdomainList []SubdomainInfo
 		if err := json.Unmarshal([]byte(scans.Subdomains), &subdomainList); err == nil {
-			// Cria um map para agrupar subdomínios por domínio
 			domainMap := make(map[string][]string)
 
-			// Agrupa os subdomínios por domínio
 			for _, item := range subdomainList {
 				domainMap[item.Domain] = append(domainMap[item.Domain], item.Subdomain)
 			}
 
-			// Converte o map para o slice de DomainGroup
 			for domain, subs := range domainMap {
 				domainGroups = append(domainGroups, DomainGroup{
 					Domain:     domain,
