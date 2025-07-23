@@ -2,6 +2,7 @@ package subdomains
 
 import (
 	"bufio"
+	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
@@ -17,8 +18,11 @@ type ScanRequest struct {
 	WordlistURL string   `json:"wordlist_url"`
 }
 
-type ScanResponse struct {
-	Found map[string][]string `json:"found"`
+type SubdomainResult struct {
+	Domain     string `json:"domain"`
+	Subdomain  string `json:"subdomain"`
+	StatusCode int    `json:"status_code"`
+	SSL        bool   `json:"ssl"`
 }
 
 func fetchRemoteWordlist(url string) ([]string, error) {
@@ -36,36 +40,88 @@ func fetchRemoteWordlist(url string) ([]string, error) {
 			list = append(list, line)
 		}
 	}
+
 	return list, scanner.Err()
 }
 
-func scanSubdomain(wg *sync.WaitGroup, subdomain, domain string, found chan<- string) {
+func tryRequest(url string, useTLS bool) (int, bool) {
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+	if useTLS {
+		client.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true, // ignora erro de certificado
+			},
+		}
+	}
+
+	req, err := http.NewRequest("HEAD", url, nil)
+	if err != nil {
+		return 0, false
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return 0, false
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode, true
+}
+
+func scanSubdomain(wg *sync.WaitGroup, subdomain, domain string, found chan<- SubdomainResult) {
 	defer wg.Done()
+
 	full := fmt.Sprintf("%s.%s", subdomain, domain)
-	hosts, err := net.LookupHost(full)
-	if err == nil && len(hosts) > 0 {
-		found <- full
+
+	// DNS resolve
+	_, err := net.LookupHost(full)
+	if err != nil {
+		return
+	}
+
+	// Tenta HTTPS
+	httpsURL := "https://" + full
+	if code, ok := tryRequest(httpsURL, true); ok {
+		found <- SubdomainResult{
+			Domain:     domain,
+			Subdomain:  full,
+			StatusCode: code,
+			SSL:        true,
+		}
+		return
+	}
+
+	// Fallback para HTTP
+	httpURL := "http://" + full
+	if code, ok := tryRequest(httpURL, false); ok {
+		found <- SubdomainResult{
+			Domain:     domain,
+			Subdomain:  full,
+			StatusCode: code,
+			SSL:        false,
+		}
 	}
 }
 
 func ScanHandler(c echo.Context) error {
 	var req ScanRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(400, map[string]string{"error": "Invalid JSON"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
 	}
 
 	if len(req.Domains) == 0 || req.WordlistURL == "" {
-		return c.JSON(400, map[string]string{"error": "domains and wordlist_url are required"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "domains and wordlist_url are required"})
 	}
 
 	wordlist, err := fetchRemoteWordlist(req.WordlistURL)
 	if err != nil {
-		return c.JSON(500, map[string]string{"error": "Failed to fetch wordlist: " + err.Error()})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch wordlist: " + err.Error()})
 	}
 
-	output := make(map[string][]string)
 	var globalWg sync.WaitGroup
-	mutex := sync.Mutex{}
+	var mutex sync.Mutex
+	var results []SubdomainResult
 
 	for _, domain := range req.Domains {
 		domain := strings.TrimSpace(domain)
@@ -78,15 +134,16 @@ func ScanHandler(c echo.Context) error {
 			defer globalWg.Done()
 
 			var wg sync.WaitGroup
-			found := make(chan string, 100)
-			var subs []string
+			found := make(chan SubdomainResult, 100)
 
-			subsMutex := sync.Mutex{}
+			collectorWg := sync.WaitGroup{}
+			collectorWg.Add(1)
 			go func() {
-				for sub := range found {
-					subsMutex.Lock()
-					subs = append(subs, sub)
-					subsMutex.Unlock()
+				defer collectorWg.Done()
+				for result := range found {
+					mutex.Lock()
+					results = append(results, result)
+					mutex.Unlock()
 				}
 			}()
 
@@ -102,13 +159,10 @@ func ScanHandler(c echo.Context) error {
 
 			wg.Wait()
 			close(found)
-
-			mutex.Lock()
-			output[domain] = subs
-			mutex.Unlock()
+			collectorWg.Wait()
 		}(domain)
 	}
 
 	globalWg.Wait()
-	return c.JSON(200, output)
+	return c.JSON(http.StatusOK, results)
 }
