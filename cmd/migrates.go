@@ -9,11 +9,10 @@ import (
 func main() {
 	configs.InitDB()
 
-	// configs.DB.Migrator().DropTable(
-	// 	&models.CustomWordlists{},
-	// 	&models.DefaultWordLists{},
-	// 	&models.CustomHeaders{},
-	// )
+	configs.DB.Migrator().DropTable(
+		&models.Scans{},
+		&models.CustomWordlists{},
+	)
 
 	configs.DB.AutoMigrate(
 		&models.Users{},

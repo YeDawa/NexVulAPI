@@ -92,22 +92,14 @@ type Profile struct {
 	Linkedin   string `json:"linkedin"`
 }
 
-type DefaultWordLists struct {
-	Id         uint      `gorm:"primaryKey;autoIncrement"`
-	Slug       string    `gorm:"unique;not null;size:100"`
-	FileName   string    `gorm:"not null;size:100"`
-	Url        string    `gorm:"unique;not null;size:255"`
-	TotalWords int       `gorm:"not null"`
-	CreatedAt  time.Time `gorm:"autoCreateTime"`
-}
-
 type CustomWordlists struct {
 	Id         uint      `gorm:"primaryKey;autoIncrement"`
 	Slug       string    `gorm:"unique;not null;size:100"`
 	UserId     uint      `gorm:"not null"`
-	Url        string    `gorm:"unique;not null;size:255"`
+	Name       string    `gorm:"not null;size:100"`
 	FileName   string    `gorm:"unique;not null;size:255"`
-	TotalWords int       `gorm:"not null"`
+	Url        string    `gorm:"not null;size:255"`
+	TotalLines int       `gorm:"not null"`
 	CreatedAt  time.Time `gorm:"autoCreateTime"`
 }
 
@@ -133,10 +125,6 @@ func (Payloads) TableName() string {
 
 func (Profile) TableName() string {
 	return "hs_profile"
-}
-
-func (DefaultWordLists) TableName() string {
-	return "hs_default_wordlists"
 }
 
 func (CustomWordlists) TableName() string {

@@ -14,11 +14,13 @@ import (
 	"time"
 
 	"httpshield/configs"
-	"httpshield/controllers/users"
 	"httpshield/generator"
 	"httpshield/models"
 	"httpshield/tasks"
 	"httpshield/utils"
+	
+	"httpshield/controllers/users"
+	"httpshield/controllers/wordlists"
 
 	"github.com/labstack/echo/v4"
 )
@@ -236,9 +238,20 @@ func ScanHandler(c echo.Context) error {
 		UserId:    uint(userIDUint),
 	}
 
+	wordlistSlug := ""
 	if req.WordlistURL != "" && len(subdomainResults) > 0 {
 		newScan.Subdomains = string(jsonSubdomainsData)
-		newScan.Wordlist = req.WordlistURL
+
+		wordlist, err := wordlists.CreateWordlist(req.WordlistURL, uint(userIDUint))
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"success": false,
+				"error":   "Failed to create wordlist",
+			})
+		}
+
+		wordlistSlug = wordlist.Slug
+		newScan.Wordlist = wordlist.Slug
 	}
 
 	result := configs.DB.Create(&newScan)
@@ -260,7 +273,7 @@ func ScanHandler(c echo.Context) error {
 
 	if len(subdomainResults) > 0 {
 		response["subdomains"] = subdomainResults
-		response["wordlist_url"] = req.WordlistURL
+		response["wordlist"] = wordlistSlug
 	}
 
 	return c.JSON(http.StatusCreated, response)
