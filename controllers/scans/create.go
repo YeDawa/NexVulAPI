@@ -24,9 +24,9 @@ import (
 )
 
 type ScanRequest struct {
-	URLs        []string `json:"urls"`         // URLs para análise de headers e, se domains vazio, para scan de subdomínios
-	Domains     []string `json:"domains"`      // Domínios para scan de subdomínios (opcional)
-	WordlistURL string   `json:"wordlist_url"` // Wordlist remota para subdomínios
+	URLs        []string `json:"urls"`
+	Domains     []string `json:"domains"`
+	WordlistURL string   `json:"wordlist_url"`
 }
 
 type SubdomainResult struct {
@@ -126,14 +126,7 @@ func extractDomain(rawURL string) (string, error) {
 
 func ScanHandler(c echo.Context) error {
 	userID := users.GetUserID(c)
-	userIDUint, err := strconv.ParseUint(userID, 10, 64)
-
-	// if err != nil {
-	// 	return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-	// 		"success": false,
-	// 		"error":   "Unathorized: Invalid user ID",
-	// 	})
-	// }
+	userIDUint, _ := strconv.ParseUint(userID, 10, 64)
 
 	var req ScanRequest
 	if err := c.Bind(&req); err != nil {
@@ -142,10 +135,6 @@ func ScanHandler(c echo.Context) error {
 
 	if len(req.URLs) == 0 {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "URLs are required"})
-	}
-
-	if req.WordlistURL == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "wordlist_url is required"})
 	}
 
 	startTime := time.Now()
@@ -171,46 +160,46 @@ func ScanHandler(c echo.Context) error {
 	}
 
 	var subdomainResults []SubdomainResult
-	if len(domains) > 0 && req.WordlistURL != "" {
+	if req.WordlistURL != "" && len(domains) > 0 {
 		wordlist, err := fetchRemoteWordlist(req.WordlistURL)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch wordlist: " + err.Error()})
-		}
+			fmt.Printf("Warning: Failed to fetch wordlist: %v\n", err)
+		} else {
+			var wg sync.WaitGroup
+			found := make(chan SubdomainResult, 1000)
+			var mutex sync.Mutex
 
-		var wg sync.WaitGroup
-		found := make(chan SubdomainResult, 1000)
-		var mutex sync.Mutex
+			var collectorWg sync.WaitGroup
+			collectorWg.Add(1)
+			go func() {
+				defer collectorWg.Done()
+				for res := range found {
+					mutex.Lock()
+					subdomainResults = append(subdomainResults, res)
+					mutex.Unlock()
+				}
+			}()
 
-		var collectorWg sync.WaitGroup
-		collectorWg.Add(1)
-		go func() {
-			defer collectorWg.Done()
-			for res := range found {
-				mutex.Lock()
-				subdomainResults = append(subdomainResults, res)
-				mutex.Unlock()
-			}
-		}()
-
-		for _, domain := range domains {
-			domain = strings.TrimSpace(domain)
-			if domain == "" {
-				continue
-			}
-			for _, sub := range wordlist {
-				sub = strings.TrimSpace(sub)
-				if sub == "" {
+			for _, domain := range domains {
+				domain = strings.TrimSpace(domain)
+				if domain == "" {
 					continue
 				}
-				wg.Add(1)
-				go scanSubdomain(&wg, sub, domain, found)
-				time.Sleep(2 * time.Millisecond)
+				for _, sub := range wordlist {
+					sub = strings.TrimSpace(sub)
+					if sub == "" {
+						continue
+					}
+					wg.Add(1)
+					go scanSubdomain(&wg, sub, domain, found)
+					time.Sleep(2 * time.Millisecond)
+				}
 			}
-		}
 
-		wg.Wait()
-		close(found)
-		collectorWg.Wait()
+			wg.Wait()
+			close(found)
+			collectorWg.Wait()
+		}
 	}
 
 	executionTime := time.Since(startTime)
@@ -240,13 +229,16 @@ func ScanHandler(c echo.Context) error {
 
 	slug := generator.String(8, 16)
 	newScan := models.Scans{
-		Slug:       slug,
-		Urls:       string(jsonUrlsData),
-		CreatedAt:  time.Now(),
-		Data:       string(jsonResultsData),
-		Subdomains: string(jsonSubdomainsData),
-		Wordlist:   req.WordlistURL,
-		UserId:     uint(userIDUint),
+		Slug:      slug,
+		Urls:      string(jsonUrlsData),
+		CreatedAt: time.Now(),
+		Data:      string(jsonResultsData),
+		UserId:    uint(userIDUint),
+	}
+
+	if req.WordlistURL != "" && len(subdomainResults) > 0 {
+		newScan.Subdomains = string(jsonSubdomainsData)
+		newScan.Wordlist = req.WordlistURL
 	}
 
 	result := configs.DB.Create(&newScan)
@@ -257,14 +249,19 @@ func ScanHandler(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusCreated, map[string]interface{}{
+	response := map[string]interface{}{
 		"success":        true,
 		"id":             slug,
 		"results":        siteAnalyses,
 		"execution_time": executionTime,
-		"subdomains":     subdomainResults,
-		"wordlist_url":   req.WordlistURL,
 		"html_page":      utils.GetScanPage(slug),
 		"message":        "Scan created successfully",
-	})
+	}
+
+	if len(subdomainResults) > 0 {
+		response["subdomains"] = subdomainResults
+		response["wordlist_url"] = req.WordlistURL
+	}
+
+	return c.JSON(http.StatusCreated, response)
 }
