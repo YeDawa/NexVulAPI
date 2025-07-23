@@ -37,6 +37,7 @@ func GenerateReport(c echo.Context) error {
 
 	var scanData []ScanData
 	var urls []string
+	var subdomainInfo []tasks.SubdomainInfo
 
 	if err := json.Unmarshal([]byte(scans.Data), &scanData); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -52,6 +53,25 @@ func GenerateReport(c echo.Context) error {
 		})
 	}
 
+	if scans.Subdomains != "" {
+		if err := json.Unmarshal([]byte(scans.Subdomains), &subdomainInfo); err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"success": false,
+				"error":   "Failed to deserialize 'subdomains' field: " + err.Error(),
+			})
+		}
+
+		domainMap := make(map[string][]tasks.SubdomainInfo)
+		for _, info := range subdomainInfo {
+			domainMap[info.Domain] = append(domainMap[info.Domain], info)
+		}
+
+		subdomainInfo = make([]tasks.SubdomainInfo, 0)
+		for _, infos := range domainMap {
+			subdomainInfo = append(subdomainInfo, infos...)
+		}
+	}
+
 	client := &http.Client{Timeout: 10 * time.Second}
 	var analyses []tasks.SiteAnalysis
 	for _, targetURL := range urls {
@@ -59,7 +79,7 @@ func GenerateReport(c echo.Context) error {
 		analyses = append(analyses, analysis)
 	}
 
-	pdfBytes, err := generator.GeneratePDF(analyses)
+	pdfBytes, err := generator.GeneratePDF(analyses, subdomainInfo)
 	if err != nil {
 		fmt.Println("GenerateMultiSitePDF error:", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate PDF"})

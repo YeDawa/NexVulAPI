@@ -13,6 +13,12 @@ type AnalysisResult struct {
 	Note   string `json:"note,omitempty"`
 }
 
+type SubdomainInfo struct {
+	Domain    string `json:"domain"`
+	Subdomain string `json:"subdomain"`
+	SSL       bool   `json:"ssl"`
+}
+
 type SiteAnalysis struct {
 	URL             string           `json:"url"`
 	Server          string           `json:"server,omitempty"`
