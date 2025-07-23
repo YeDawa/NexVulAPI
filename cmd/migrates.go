@@ -9,7 +9,11 @@ import (
 func main() {
 	configs.InitDB()
 
-	configs.DB.Migrator().DropTable(&models.Scans{})
+	// configs.DB.Migrator().DropTable(
+	// 	&models.CustomWordlists{},
+	// 	&models.DefaultWordLists{},
+	// 	&models.CustomHeaders{},
+	// )
 
 	configs.DB.AutoMigrate(
 		&models.Users{},
@@ -18,9 +22,7 @@ func main() {
 		&models.Profile{},
 		&models.ScansXSS{},
 		&models.Payloads{},
-		&models.CustomHeaders{},
 		&models.CustomWordlists{},
-		&models.DefaultWordLists{},
 	)
 
 	fmt.Println("Migrate complete!")

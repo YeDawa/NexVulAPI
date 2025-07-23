@@ -39,7 +39,7 @@ type Users struct {
 }
 
 type Scans struct {
-	Id         uint      `gorm:"primaryKey;autoIncrement"`
+	Id         uint `gorm:"primaryKey;autoIncrement"`
 	UserId     uint
 	Slug       string    `gorm:"uniqueIndex;column:slug" json:"slug"`
 	Urls       string    `gorm:"not null;size:255"`
@@ -48,14 +48,6 @@ type Scans struct {
 	Data       string    `gorm:"type:text"`
 	Public     bool      `gorm:"default:false"`
 	CreatedAt  time.Time `gorm:"autoCreateTime"`
-}
-
-type CustomHeaders struct {
-	Id        uint      `gorm:"primaryKey;autoIncrement"`
-	UserId    uint      `gorm:"not null"`
-	Header    string    `gorm:"not null;size:100"`
-	Value     string    `gorm:"not null;size:255"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
 }
 
 type Reports struct {
@@ -103,8 +95,7 @@ type Profile struct {
 type DefaultWordLists struct {
 	Id         uint      `gorm:"primaryKey;autoIncrement"`
 	Slug       string    `gorm:"unique;not null;size:100"`
-	Name       string    `gorm:"not null;size:100"`
-	Origin     string    `gorm:"not null;size:255"`
+	FileName   string    `gorm:"not null;size:100"`
 	Url        string    `gorm:"unique;not null;size:255"`
 	TotalWords int       `gorm:"not null"`
 	CreatedAt  time.Time `gorm:"autoCreateTime"`
@@ -116,10 +107,7 @@ type CustomWordlists struct {
 	UserId     uint      `gorm:"not null"`
 	Url        string    `gorm:"unique;not null;size:255"`
 	FileName   string    `gorm:"unique;not null;size:255"`
-	Origin     string    `gorm:"not null;size:255"`
 	TotalWords int       `gorm:"not null"`
-	Type       string    `gorm:"not null;size:50"`
-	Domain     string    `gorm:"size:255"`
 	CreatedAt  time.Time `gorm:"autoCreateTime"`
 }
 
@@ -133,10 +121,6 @@ func (Scans) TableName() string {
 
 func (Reports) TableName() string {
 	return "hs_reports"
-}
-
-func (CustomHeaders) TableName() string {
-	return "hs_custom_headers"
 }
 
 func (ScansXSS) TableName() string {
