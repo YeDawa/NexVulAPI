@@ -4,6 +4,7 @@ import "time"
 
 type RequestPayload struct {
 	URLs []string `json:"urls"`
+	WordlistURL string `json:"wordlist_url"`
 }
 
 type AnalysisResult struct {
@@ -20,6 +21,7 @@ type SiteAnalysis struct {
 	StatusCode      int              `json:"status_code,omitempty"`
 	ContentType     string           `json:"content_type,omitempty"`
 	Results         []AnalysisResult `json:"results"`
+	Subdomains      []string         `json:"subdomains"`
 	SecurityScore   int              `json:"security_score"`
 	Recommendations []string         `json:"recommendations"`
 }

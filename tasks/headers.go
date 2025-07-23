@@ -37,6 +37,7 @@ func AnalyzeSingleURL(client *http.Client, targetURL string) SiteAnalysis {
 
 	for _, header := range configs.RequiredHeaders {
 		lh := strings.ToLower(header)
+
 		if val, ok := normalizedHeaders[lh]; ok && val != "" {
 			results = append(results, AnalysisResult{
 				Header: header,
