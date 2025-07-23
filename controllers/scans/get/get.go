@@ -33,8 +33,8 @@ type ScanData struct {
 }
 
 type DomainGroup struct {
-	Domain     string   `json:"domain"`
-	Subdomains []string `json:"subdomains"`
+	Domain     string   `json:"domain,omitempty"`
+	Subdomains []string `json:"subdomains,omitempty"`
 }
 
 type ScanResponse struct {
