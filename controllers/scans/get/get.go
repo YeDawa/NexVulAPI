@@ -32,16 +32,22 @@ type ScanData struct {
 	Recommendations []string       `json:"recommendations"`
 }
 
+type DomainGroup struct {
+	Domain     string   `json:"domain"`
+	Subdomains []string `json:"subdomains"`
+}
+
 type ScanResponse struct {
-	Id         string     `json:"id"`
-	Data       []ScanData `json:"data"`
-	Urls       []string   `json:"urls"`
-	HtmlPage   string     `json:"html_page"`
-	ReportPage string     `json:"report_page"`
-	ApiPage    string     `json:"api_page"`
-	Public     bool       `json:"public"`
-	Owner      ScanOwner  `json:"owner"`
-	CreatedAt  string     `json:"created_at"`
+	Id         string        `json:"id"`
+	Data       []ScanData    `json:"data"`
+	Urls       []string      `json:"urls"`
+	Subdomains []DomainGroup `json:"subdomains"`
+	HtmlPage   string        `json:"html_page"`
+	ReportPage string        `json:"report_page"`
+	ApiPage    string        `json:"api_page"`
+	Public     bool          `json:"public"`
+	Owner      ScanOwner     `json:"owner"`
+	CreatedAt  string        `json:"created_at"`
 }
 
 type ScanOwner struct {
@@ -73,6 +79,35 @@ func GetScanDetails(c echo.Context) error {
 
 	var scanData []ScanData
 	var urls []string
+	var domainGroups []DomainGroup
+
+	// Processa subdomains apenas se não estiver vazio
+	if scans.Subdomains != "" {
+		type SubdomainInfo struct {
+			Domain    string `json:"domain"`
+			Subdomain string `json:"subdomain"`
+			SSL       bool   `json:"ssl"`
+		}
+
+		var subdomainList []SubdomainInfo
+		if err := json.Unmarshal([]byte(scans.Subdomains), &subdomainList); err == nil {
+			// Cria um map para agrupar subdomínios por domínio
+			domainMap := make(map[string][]string)
+
+			// Agrupa os subdomínios por domínio
+			for _, item := range subdomainList {
+				domainMap[item.Domain] = append(domainMap[item.Domain], item.Subdomain)
+			}
+
+			// Converte o map para o slice de DomainGroup
+			for domain, subs := range domainMap {
+				domainGroups = append(domainGroups, DomainGroup{
+					Domain:     domain,
+					Subdomains: subs,
+				})
+			}
+		}
+	}
 
 	if err := json.Unmarshal([]byte(scans.Data), &scanData); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -106,6 +141,7 @@ func GetScanDetails(c echo.Context) error {
 	response := ScanResponse{
 		Id:         scans.Slug,
 		Data:       scanData,
+		Subdomains: domainGroups,
 		Urls:       urls,
 		Public:     scans.Public,
 		Owner:      owner,

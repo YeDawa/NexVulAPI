@@ -12,7 +12,6 @@ import (
 	"httpshield/controllers/profile"
 	"httpshield/controllers/scans"
 	"httpshield/controllers/scans/get"
-	"httpshield/controllers/scans/subdomains"
 	"httpshield/controllers/users"
 )
 
@@ -50,10 +49,9 @@ func main() {
 	e.GET("/users/me", account.UserLogged)
 
 	// API's Scans
-	e.POST("/scan", scans.AnalyzeHeaders)
+	e.POST("/scan", scans.ScanHandler)
 	e.GET("/scan/:id", get_scan.GetScanDetails)
 	e.GET("/scan/:id/export", get_scan.GenerateReport)
-	e.POST("/scan/subdomains", subdomains.ScanHandler)
 
 	// API's Profile
 	e.GET("/user/:user", profile.ProfilePublic)

@@ -39,13 +39,15 @@ type Users struct {
 }
 
 type Scans struct {
-	Id        uint      `gorm:"primaryKey;autoIncrement"`
-	UserId    uint      `gorm:"not null"`
-	Slug      string    `gorm:"unique;not null;size:100"`
-	Urls      string    `gorm:"not null;size:255"`
-	Data      string    `gorm:"type:text"`
-	Public    bool      `gorm:"default:false"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
+	Id         uint      `gorm:"primaryKey;autoIncrement"`
+	UserId     uint
+	Slug       string    `gorm:"uniqueIndex;column:slug" json:"slug"`
+	Urls       string    `gorm:"not null;size:255"`
+	Subdomains string    `gorm:"type:text"`
+	Wordlist   string    `gorm:"size:255"`
+	Data       string    `gorm:"type:text"`
+	Public     bool      `gorm:"default:false"`
+	CreatedAt  time.Time `gorm:"autoCreateTime"`
 }
 
 type CustomHeaders struct {
