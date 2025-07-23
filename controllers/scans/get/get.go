@@ -41,20 +41,20 @@ type ScanResponse struct {
 	Id         string        `json:"id"`
 	Data       []ScanData    `json:"data"`
 	Urls       []string      `json:"urls"`
-	Subdomains []DomainGroup `json:"subdomains"`
+	Subdomains []DomainGroup `json:"subdomains,omitempty"`
 	HtmlPage   string        `json:"html_page"`
 	ReportPage string        `json:"report_page"`
 	ApiPage    string        `json:"api_page"`
 	Public     bool          `json:"public"`
-	Owner      ScanOwner     `json:"owner"`
+	Owner      ScanOwner     `json:"owner,omitempty"`
 	CreatedAt  string        `json:"created_at"`
 }
 
 type ScanOwner struct {
-	Profile  string `json:"html_page"`
-	Username string `json:"username"`
-	Avatar   string `json:"avatar"`
-	Name     string `json:"name"`
+	Profile  string `json:"html_page,omitempty"`
+	Username string `json:"username,omitempty"`
+	Avatar   string `json:"avatar,omitempty"`
+	Name     string `json:"name,omitempty"`
 }
 
 type SubdomainInfo struct {
@@ -120,18 +120,23 @@ func GetScanDetails(c echo.Context) error {
 	}
 
 	var user models.Users
-	if err := configs.DB.Where("id = ?", scans.UserId).First(&user).Error; err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"success": false,
-			"error":   err.Error(),
-		})
+	if scans.UserId > 0 {
+		if err := configs.DB.Where("id = ?", scans.UserId).First(&user).Error; err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"success": false,
+				"error":   err.Error(),
+			})
+		}
 	}
 
-	owner := ScanOwner{
-		Name:     user.Name,
-		Username: user.Username,
-		Avatar:   users.GetAvatarByID(user.Id),
-		Profile:  utils.GetOwnerProfilePage(user.Username),
+	var owner ScanOwner
+	if scans.UserId != 0 {
+		owner = ScanOwner{
+			Name:     user.Name,
+			Username: user.Username,
+			Avatar:   users.GetAvatarByID(user.Id),
+			Profile:  utils.GetOwnerProfilePage(user.Username),
+		}
 	}
 
 	response := ScanResponse{
@@ -140,11 +145,14 @@ func GetScanDetails(c echo.Context) error {
 		Subdomains: domainGroups,
 		Urls:       urls,
 		Public:     scans.Public,
-		Owner:      owner,
 		HtmlPage:   utils.GetScanPage(scans.Slug),
 		ApiPage:    utils.GetScanApiPage(c, scans.Slug),
 		ReportPage: utils.GetScanApiReportPage(c, scans.Slug),
 		CreatedAt:  scans.CreatedAt.Format(time.RFC3339),
+	}
+
+	if scans.UserId > 0 {
+		response.Owner = owner
 	}
 
 	return c.JSON(http.StatusOK, response)
