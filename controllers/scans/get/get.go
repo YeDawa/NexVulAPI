@@ -42,6 +42,7 @@ type ScanResponse struct {
 	Data       []ScanData    `json:"data"`
 	Urls       []string      `json:"urls"`
 	Subdomains []DomainGroup `json:"subdomains,omitempty"`
+	Wordlist   string        `json:"wordlist,omitempty"`
 	HtmlPage   string        `json:"html_page"`
 	ReportPage string        `json:"report_page"`
 	ApiPage    string        `json:"api_page"`
@@ -145,6 +146,7 @@ func GetScanDetails(c echo.Context) error {
 		Subdomains: domainGroups,
 		Urls:       urls,
 		Public:     scans.Public,
+		Wordlist:   scans.Wordlist,
 		HtmlPage:   utils.GetScanPage(scans.Slug),
 		ApiPage:    utils.GetScanApiPage(c, scans.Slug),
 		ReportPage: utils.GetScanApiReportPage(c, scans.Slug),
