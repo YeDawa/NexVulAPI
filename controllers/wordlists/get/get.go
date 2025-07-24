@@ -72,11 +72,11 @@ func GetWordlistDetails(c echo.Context) error {
 
 	response := WordlistResponse{
 		Id:         wordlist.Slug,
-		RawUrl:     wordlist.Url,
 		Name:       wordlist.Name,
 		FileName:   wordlist.FileName,
 		TotalLines: uint(wordlist.TotalLines),
 		CreatedAt:  wordlist.CreatedAt.Format(time.RFC3339),
+		RawUrl:     utils.GetWordlistRawPage(c, wordlist.Slug),
 	}
 
 	if wordlist.UserId > 0 {

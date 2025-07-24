@@ -56,6 +56,7 @@ func main() {
 
 	// API's Wordlists
 	e.GET("/wordlist/:id", get_wordlist.GetWordlistDetails)
+	e.GET("/wordlist/:id/raw", get_wordlist.GetWordlistRawContent)
 
 	// API's Profile
 	e.GET("/user/:user", profile.ProfilePublic)

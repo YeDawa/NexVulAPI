@@ -27,3 +27,7 @@ func GetScanApiPage(c echo.Context, id string) string {
 func GetScanApiReportPage(c echo.Context, id string) string {
 	return fmt.Sprintf("%s/scan/%s/export", configs.GetRootURL(c), id)
 }
+
+func GetWordlistRawPage(c echo.Context, id string) string {
+	return fmt.Sprintf("%s/wordlist/%s/raw", configs.GetRootURL(c), id)
+}
