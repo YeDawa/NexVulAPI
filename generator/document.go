@@ -178,7 +178,7 @@ func GeneratePDF(sites []tasks.SiteAnalysis, htmlPage, wordlist string, subdomai
 
 			pdf.SetFont("Roboto", "", 10)
 			for _, rec := range site.Recommendations {
-				pdf.MultiCell(0, 5, "• "+utils.SanitizeText(rec), "", "", false)
+				pdf.MultiCell(0, 5, "• " + utils.SanitizeText(rec), "", "", false)
 			}
 		}
 
@@ -195,6 +195,7 @@ func GeneratePDF(sites []tasks.SiteAnalysis, htmlPage, wordlist string, subdomai
 			siteDomain = strings.ReplaceAll(siteDomain, "https://", "")
 			siteDomain = strings.ReplaceAll(siteDomain, "http://", "")
 
+			pdf.SetFont("Roboto", "", 10)
 			if rec.Domain == siteDomain {
 				pdf.MultiCell(0, 5, "• " + utils.SanitizeText(rec.Subdomain), "", "", false)
 			}
