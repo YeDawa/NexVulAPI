@@ -104,7 +104,7 @@ func GeneratePDF(sites []tasks.SiteAnalysis, htmlPage, wordlist string, subdomai
 		pdf.SetTextColor(0, 0, 0)
 
 		pdf.SetFont("Roboto", "", 10)
-		pdf.Cell(0, 8, utils.SanitizeText(fmt.Sprintf("Site: %s", site.URL)))
+		pdf.WriteLinkString(10, fmt.Sprintf("Site: %s", site.URL), site.URL)
 		pdf.Ln(8)
 
 		if site.Server != "" {
