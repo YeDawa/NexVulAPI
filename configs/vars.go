@@ -7,7 +7,7 @@ const (
 	UserCookieName = "3LwqrpZpHXK9z2pvX4"
 	DomainName     = ".nexvul.com"
 	LogoPath       = "./assets/logo.png"
-	HTMLPageURI    = "https://nexvul.com/"
+	HTMLPageURI    = "https://nexvul.com"
 	FontURL        = "https://github.com/melroy89/Roboto/raw/refs/heads/main/RobotoTTF/Roboto-Regular.ttf"
 	FontPath       = "./temp_fonts/Roboto-Regular.ttf"
 )

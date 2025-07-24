@@ -9,11 +9,15 @@ import (
 )
 
 func GetScanPage(id string) string {
-	return fmt.Sprintf("%sscan/%s", configs.HTMLPageURI, id)
+	return fmt.Sprintf("%s/scan/%s", configs.HTMLPageURI, id)
+}
+
+func GetWordlistPage(id string) string {
+	return fmt.Sprintf("%s/wordlist/%s", configs.HTMLPageURI, id)
 }
 
 func GetOwnerProfilePage(user string) string {
-	return fmt.Sprintf("%suser/%s", configs.HTMLPageURI, user)
+	return fmt.Sprintf("%s/user/%s", configs.HTMLPageURI, user)
 }
 
 func GetScanApiPage(c echo.Context, id string) string {

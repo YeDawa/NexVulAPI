@@ -42,7 +42,7 @@ type ScanResponse struct {
 	Data       []ScanData    `json:"data"`
 	Urls       []string      `json:"urls"`
 	Subdomains []DomainGroup `json:"subdomains,omitempty"`
-	Wordlist   string        `json:"wordlist,omitempty"`
+	Wordlist   ScanWordlist  `json:"wordlist,omitempty"`
 	HtmlPage   string        `json:"html_page"`
 	ReportPage string        `json:"report_page"`
 	ApiPage    string        `json:"api_page"`
@@ -56,6 +56,12 @@ type ScanOwner struct {
 	Username string `json:"username,omitempty"`
 	Avatar   string `json:"avatar,omitempty"`
 	Name     string `json:"name,omitempty"`
+}
+
+type ScanWordlist struct {
+	TotalLines int    `json:"total_lines,omitempty"`
+	HtmlPage   string `json:"html_page,omitempty"`
+	Name       string `json:"name,omitempty"`
 }
 
 type SubdomainInfo struct {
@@ -130,6 +136,23 @@ func GetScanDetails(c echo.Context) error {
 		}
 	}
 
+	var wordlistData ScanWordlist
+	if scans.Wordlist != "" {
+		var wordlist models.CustomWordlists
+		if err := configs.DB.Where("slug = ?", scans.Wordlist).First(&wordlist).Error; err != nil {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"success": false,
+				"error":   "Failed to retrieve wordlist: " + err.Error(),
+			})
+		}
+
+		wordlistData = ScanWordlist{
+			Name:       wordlist.Name, 
+			TotalLines: wordlist.TotalLines,
+			HtmlPage:   utils.GetWordlistPage(wordlist.Slug),
+		}
+	}
+
 	var owner ScanOwner
 	if scans.UserId != 0 {
 		owner = ScanOwner{
@@ -146,7 +169,7 @@ func GetScanDetails(c echo.Context) error {
 		Subdomains: domainGroups,
 		Urls:       urls,
 		Public:     scans.Public,
-		Wordlist:   scans.Wordlist,
+		Wordlist:   wordlistData,
 		HtmlPage:   utils.GetScanPage(scans.Slug),
 		ApiPage:    utils.GetScanApiPage(c, scans.Slug),
 		ReportPage: utils.GetScanApiReportPage(c, scans.Slug),

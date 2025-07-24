@@ -12,6 +12,7 @@ import (
 	"httpshield/controllers/profile"
 	"httpshield/controllers/scans"
 	"httpshield/controllers/scans/get"
+	"httpshield/controllers/wordlists/get"
 	"httpshield/controllers/users"
 )
 
@@ -52,6 +53,9 @@ func main() {
 	e.POST("/scan", scans.ScanHandler)
 	e.GET("/scan/:id", get_scan.GetScanDetails)
 	e.GET("/scan/:id/export", get_scan.GenerateReport)
+
+	// API's Wordlists
+	e.GET("/wordlist/:id", get_wordlist.GetWordlistDetails)
 
 	// API's Profile
 	e.GET("/user/:user", profile.ProfilePublic)
