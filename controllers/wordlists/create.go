@@ -10,11 +10,6 @@ import (
 	"nexvul/utils"
 )
 
-type CreateWordlistRequest struct {
-	WordlistName string `json:"wordlist_name"`
-	WordlistURL  string `json:"wordlist_url"`
-}
-
 type CreateWordlistResponse struct {
 	Id       uint                   `json:"id"`
 	Slug     string                 `json:"slug"`

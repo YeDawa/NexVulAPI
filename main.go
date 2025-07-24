@@ -11,9 +11,10 @@ import (
 	"nexvul/controllers/account"
 	"nexvul/controllers/profile"
 	"nexvul/controllers/scans"
-	"nexvul/controllers/scans/get"
+	get_scan "nexvul/controllers/scans/get"
 	"nexvul/controllers/users"
-	"nexvul/controllers/wordlists/get"
+	"nexvul/controllers/wordlists"
+	get_wordlist "nexvul/controllers/wordlists/get"
 )
 
 func main() {
@@ -55,6 +56,7 @@ func main() {
 	e.GET("/scan/:id/export", get_scan.GenerateReport)
 
 	// API's Wordlists
+	e.POST("/wordlist", wordlists.ImportWordlist)
 	e.GET("/wordlist/:id", get_wordlist.GetWordlistDetails)
 	e.GET("/wordlist/:id/raw", get_wordlist.GetWordlistRawContent)
 
