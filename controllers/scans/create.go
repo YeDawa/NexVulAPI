@@ -77,7 +77,7 @@ func tryRequest(url string, useTLS bool) (bool, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode >= 200 && resp.StatusCode < 400 {
+	if resp.StatusCode >= 200 {
 		return true, nil
 	}
 	return false, nil
@@ -94,7 +94,7 @@ func scanSubdomain(wg *sync.WaitGroup, subdomain, domain string, found chan<- Su
 	}
 
 	httpsURL := "https://" + full
-	if ok, _ := tryRequest(httpsURL, true); ok {
+	if _, err := tryRequest(httpsURL, true); err == nil {
 		found <- SubdomainResult{
 			Domain:    domain,
 			Subdomain: full,
@@ -104,7 +104,7 @@ func scanSubdomain(wg *sync.WaitGroup, subdomain, domain string, found chan<- Su
 	}
 
 	httpURL := "http://" + full
-	if ok, _ := tryRequest(httpURL, false); ok {
+	if _, err := tryRequest(httpURL, false); err == nil {
 		found <- SubdomainResult{
 			Domain:    domain,
 			Subdomain: full,
@@ -238,7 +238,7 @@ func ScanHandler(c echo.Context) error {
 		UserId:    uint(userIDUint),
 	}
 
-	wordlistSlug := ""
+	var wordlistSlug uint = 0
 	if req.WordlistURL != "" && len(subdomainResults) > 0 {
 		newScan.Subdomains = string(jsonSubdomainsData)
 
@@ -250,8 +250,8 @@ func ScanHandler(c echo.Context) error {
 			})
 		}
 
-		wordlistSlug = wordlist.Slug
-		newScan.Wordlist = wordlist.Slug
+		wordlistSlug = wordlist.Id
+		newScan.Wordlist = wordlist.Id
 	}
 
 	result := configs.DB.Create(&newScan)

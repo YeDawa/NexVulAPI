@@ -16,6 +16,7 @@ type CreateWordlistRequest struct {
 }
 
 type CreateWordlistResponse struct {
+	Id       uint                   `json:"id"`
 	Slug     string                 `json:"slug"`
 	Success  bool                   `json:"success"`
 	Message  string                 `json:"message"`
@@ -46,6 +47,7 @@ func CreateWordlist(wordlistURL string, UserId uint) (CreateWordlistResponse, er
 	}
 
 	response := CreateWordlistResponse{
+		Id:       customWordlist.Id,
 		Slug:     slug,
 		Success:  true,
 		Message:  "Wordlist created successfully",

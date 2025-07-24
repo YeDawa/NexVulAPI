@@ -137,9 +137,9 @@ func GetScanDetails(c echo.Context) error {
 	}
 
 	var wordlistData ScanWordlist
-	if scans.Wordlist != "" {
+	if scans.Wordlist != 0 {
 		var wordlist models.CustomWordlists
-		if err := configs.DB.Where("slug = ?", scans.Wordlist).First(&wordlist).Error; err != nil {
+		if err := configs.DB.Where("id = ?", scans.Wordlist).First(&wordlist).Error; err != nil {
 			return c.JSON(http.StatusNotFound, map[string]interface{}{
 				"success": false,
 				"error":   "Failed to retrieve wordlist: " + err.Error(),

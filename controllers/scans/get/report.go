@@ -10,6 +10,7 @@ import (
 	"nexvul/generator"
 	"nexvul/models"
 	"nexvul/tasks"
+	"nexvul/utils"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -79,12 +80,22 @@ func GenerateReport(c echo.Context) error {
 		analyses = append(analyses, analysis)
 	}
 
-	var wordlist string = ""
-	if scans.Wordlist != "" {
-		wordlist = scans.Wordlist
+	var wordlistData ScanWordlist
+	if scans.Wordlist != 0 {
+		var wordlist models.CustomWordlists
+		if err := configs.DB.Where("id = ?", scans.Wordlist).First(&wordlist).Error; err != nil {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"success": false,
+				"error":   "Failed to retrieve wordlist: " + err.Error(),
+			})
+		}
+
+		wordlistData = ScanWordlist{
+			HtmlPage:   utils.GetWordlistPage(wordlist.Slug),
+		}
 	}
 
-	pdfBytes, err := generator.GeneratePDF(analyses, wordlist, subdomainInfo)
+	pdfBytes, err := generator.GeneratePDF(analyses, wordlistData.HtmlPage, subdomainInfo)
 	if err != nil {
 		fmt.Println("GenerateMultiSitePDF error:", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate PDF"})

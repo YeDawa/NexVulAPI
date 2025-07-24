@@ -72,17 +72,8 @@ func GeneratePDF(sites []tasks.SiteAnalysis, wordlist string, subdomains []tasks
 
 	if wordlist != "" {
 		pdf.Ln(8)
-		pdf.Cell(0, 10, "Wordlist")
+		pdf.Cell(0, 10, fmt.Sprintf("Wordlist: %s", wordlist))
 		pdf.Ln(8)
-
-		pageWidth, _ := pdf.GetPageSize()
-		marginLeft, _, marginRight, _ := pdf.GetMargins()
-		maxWidth := pageWidth - marginLeft - marginRight
-
-		lines := pdf.SplitLines([]byte(utils.SanitizeText(wordlist)), maxWidth)
-		for _, line := range lines {
-			pdf.MultiCell(0, 5, string(line), "", "L", false)
-		}
 	}
 
 	pdf.SetFooterFunc(func() {
