@@ -95,7 +95,9 @@ func GenerateReport(c echo.Context) error {
 		}
 	}
 
-	pdfBytes, err := generator.GeneratePDF(analyses, wordlistData.HtmlPage, subdomainInfo)
+	htmlPage := utils.GetScanPage(scans.Slug)
+	pdfBytes, err := generator.GeneratePDF(analyses, htmlPage, wordlistData.HtmlPage, subdomainInfo)
+
 	if err != nil {
 		fmt.Println("GenerateMultiSitePDF error:", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate PDF"})
