@@ -72,7 +72,7 @@ func GeneratePDF(sites []tasks.SiteAnalysis, wordlist string, subdomains []tasks
 
 	if wordlist != "" {
 		pdf.Ln(8)
-		pdf.Cell(0, 10, fmt.Sprintf("Wordlist: %s", wordlist))
+		pdf.WriteLinkString(10, fmt.Sprintf("Wordlist: %s", wordlist), wordlist)
 		pdf.Ln(8)
 	}
 
