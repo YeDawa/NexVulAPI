@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	"httpshield/configs"
-	"httpshield/generator"
-	"httpshield/models"
-	"httpshield/tasks"
+	"nexvul/configs"
+	"nexvul/generator"
+	"nexvul/models"
+	"nexvul/tasks"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"

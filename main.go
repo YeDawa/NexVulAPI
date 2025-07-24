@@ -3,17 +3,17 @@ package main
 import (
 	"os"
 
-	"httpshield/configs"
+	"nexvul/configs"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"httpshield/controllers/account"
-	"httpshield/controllers/profile"
-	"httpshield/controllers/scans"
-	"httpshield/controllers/scans/get"
-	"httpshield/controllers/wordlists/get"
-	"httpshield/controllers/users"
+	"nexvul/controllers/account"
+	"nexvul/controllers/profile"
+	"nexvul/controllers/scans"
+	"nexvul/controllers/scans/get"
+	"nexvul/controllers/users"
+	"nexvul/controllers/wordlists/get"
 )
 
 func main() {

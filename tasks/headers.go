@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"httpshield/configs"
-	"httpshield/utils"
+	"nexvul/configs"
+	"nexvul/utils"
 )
 
 func AnalyzeSingleURL(client *http.Client, targetURL string) SiteAnalysis {

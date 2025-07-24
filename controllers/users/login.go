@@ -4,12 +4,12 @@ import (
 	"encoding/base64"
 	"net/http"
 
-	"httpshield/configs"
-	"httpshield/models"
-	"httpshield/security"
+	"nexvul/configs"
+	"nexvul/models"
+	"nexvul/security"
 
-	"httpshield/core"
-	"httpshield/generator"
+	"nexvul/core"
+	"nexvul/generator"
 
 	"github.com/labstack/echo/v4"
 )

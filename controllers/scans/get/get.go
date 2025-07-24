@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"httpshield/configs"
-	"httpshield/controllers/users"
-	"httpshield/models"
-	"httpshield/utils"
+	"nexvul/configs"
+	"nexvul/controllers/users"
+	"nexvul/models"
+	"nexvul/utils"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -147,7 +147,7 @@ func GetScanDetails(c echo.Context) error {
 		}
 
 		wordlistData = ScanWordlist{
-			Name:       wordlist.Name, 
+			Name:       wordlist.Name,
 			TotalLines: wordlist.TotalLines,
 			HtmlPage:   utils.GetWordlistPage(wordlist.Slug),
 		}

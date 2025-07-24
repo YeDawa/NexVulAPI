@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"httpshield/configs"
-	"httpshield/core"
-	"httpshield/generator"
-	"httpshield/models"
-	"httpshield/security"
+	"nexvul/configs"
+	"nexvul/core"
+	"nexvul/generator"
+	"nexvul/models"
+	"nexvul/security"
 
 	"github.com/labstack/echo/v4"
 )

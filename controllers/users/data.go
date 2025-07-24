@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"httpshield/configs"
-	"httpshield/core"
-	"httpshield/models"
+	"nexvul/configs"
+	"nexvul/core"
+	"nexvul/models"
 
 	"github.com/drexedam/gravatar"
 	"github.com/labstack/echo/v4"

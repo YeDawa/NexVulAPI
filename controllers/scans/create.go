@@ -13,14 +13,14 @@ import (
 	"sync"
 	"time"
 
-	"httpshield/configs"
-	"httpshield/generator"
-	"httpshield/models"
-	"httpshield/tasks"
-	"httpshield/utils"
-	
-	"httpshield/controllers/users"
-	"httpshield/controllers/wordlists"
+	"nexvul/configs"
+	"nexvul/generator"
+	"nexvul/models"
+	"nexvul/tasks"
+	"nexvul/utils"
+
+	"nexvul/controllers/users"
+	"nexvul/controllers/wordlists"
 
 	"github.com/labstack/echo/v4"
 )

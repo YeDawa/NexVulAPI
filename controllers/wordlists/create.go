@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"httpshield/configs"
-	"httpshield/generator"
-	"httpshield/models"
-	"httpshield/utils"
+	"nexvul/configs"
+	"nexvul/generator"
+	"nexvul/models"
+	"nexvul/utils"
 )
 
 type CreateWordlistRequest struct {

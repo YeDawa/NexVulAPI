@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"httpshield/configs"
+	"nexvul/configs"
 )
 
 func DownloadFontIfNeeded() error {

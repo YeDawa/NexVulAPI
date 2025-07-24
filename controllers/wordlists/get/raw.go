@@ -2,10 +2,10 @@ package get_wordlist
 
 import (
 	"net/http"
-	
-	"httpshield/configs"
-	"httpshield/models"
-	"httpshield/utils"
+
+	"nexvul/configs"
+	"nexvul/models"
+	"nexvul/utils"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -23,7 +23,7 @@ func GetWordlistRawContent(c echo.Context) error {
 				"error":   "Item not found",
 			})
 		}
-		
+
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"success": false,
 			"error":   result.Error.Error(),

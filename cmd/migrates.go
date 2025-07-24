@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"httpshield/configs"
-	"httpshield/models"
+	"nexvul/configs"
+	"nexvul/models"
 )
 
 func main() {

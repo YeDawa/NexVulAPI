@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"httpshield/configs"
-	"httpshield/tasks"
-	"httpshield/utils"
+	"nexvul/configs"
+	"nexvul/tasks"
+	"nexvul/utils"
 
 	"github.com/go-pdf/fpdf"
 )

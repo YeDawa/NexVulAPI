@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 
-	"httpshield/configs"
+	"nexvul/configs"
 
 	"github.com/labstack/echo/v4"
 )

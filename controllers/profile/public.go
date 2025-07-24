@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"time"
 
-	"httpshield/configs"
-	"httpshield/models"
+	"nexvul/configs"
+	"nexvul/models"
 
-	"httpshield/controllers/users"
+	"nexvul/controllers/users"
 
 	"github.com/labstack/echo/v4"
 )
