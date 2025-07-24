@@ -32,7 +32,11 @@ func GetWordlistRawContent(c echo.Context) error {
 
 	var content string
 	err := utils.StreamRemoteFile(wordlist.Url, func(line string) {
-		content += line + "\n"
+		if content == "" {
+			content = line
+		} else {
+			content += "\n" + line
+		}
 	})
 
 	if err != nil {
