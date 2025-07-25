@@ -20,6 +20,10 @@ func GetScanApiPage(c echo.Context, id string) string {
 	return fmt.Sprintf("%s/scan/%s", configs.GetRootURL(c), id)
 }
 
+func GetScanReportPage(c echo.Context, id string) string {
+	return fmt.Sprintf("%s/scan/%s/report", configs.GetRootURL(c), id)
+}
+
 func GetScanApiReportPage(c echo.Context, id string) string {
 	return fmt.Sprintf("%s/scan/%s/export", configs.GetRootURL(c), id)
 }

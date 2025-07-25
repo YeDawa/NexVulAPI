@@ -16,13 +16,14 @@ import (
 )
 
 type Scans struct {
-	Urls      []string `json:"urls"`
-	Slug      string   `json:"slug"`
-	Public    bool     `json:"public"`
-	CreatedAt string   `json:"created_at"`
-	HTMLPage  string   `json:"html_page"`
-	APIPage   string   `json:"api_page"`
-	Username  string   `json:"username"`
+	Urls       []string `json:"urls"`
+	Slug       string   `json:"slug"`
+	Public     bool     `json:"public"`
+	CreatedAt  string   `json:"created_at"`
+	HTMLPage   string   `json:"html_page"`
+	APIPage    string   `json:"api_page"`
+	ReportPage string   `json:"report_page"`
+	Username   string   `json:"username"`
 }
 
 func ListPublicScans(c echo.Context) error {
@@ -43,7 +44,7 @@ func ListPublicScans(c echo.Context) error {
 	search := strings.TrimSpace(c.QueryParam("search"))
 	order := c.QueryParam("order")
 
-	query := configs.DB.Where("public = 'true'")
+	query := configs.DB.Where("public = ?", true)
 	if search != "" {
 		query = query.Where("slug LIKE ? OR urls LIKE ?", "%"+search+"%", "%"+search+"%")
 	}
@@ -85,13 +86,14 @@ func ListPublicScans(c echo.Context) error {
 		}
 
 		scanData = append(scanData, Scans{
-			Slug:      scan.Slug,
-			Urls:      urls,
-			Username:  user,
-			Public:    scan.Public,
-			CreatedAt: scan.CreatedAt.Format(time.RFC3339),
-			HTMLPage:  utils.GetScanPage(scan.Slug),
-			APIPage:   utils.GetScanApiPage(c, scan.Slug),
+			Slug:       scan.Slug,
+			Urls:       urls,
+			Username:   user,
+			Public:     scan.Public,
+			CreatedAt:  scan.CreatedAt.Format(time.RFC3339),
+			HTMLPage:   utils.GetScanPage(scan.Slug),
+			APIPage:    utils.GetScanApiPage(c, scan.Slug),
+			ReportPage: utils.GetScanReportPage(c, scan.Slug),
 		})
 	}
 

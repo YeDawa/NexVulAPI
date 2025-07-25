@@ -103,7 +103,7 @@ func GenerateReport(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate PDF"})
 	}
 
-	filename := fmt.Sprintf("report_%d.pdf", time.Now().UnixNano())
+	filename := fmt.Sprintf("%s.pdf", id)
 	c.Response().Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=%s", filename))
 	c.Response().Header().Set(echo.HeaderContentType, "application/pdf")
 	return c.Blob(http.StatusOK, "application/pdf", pdfBytes)
