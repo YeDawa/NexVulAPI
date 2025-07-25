@@ -1,13 +1,9 @@
 package scans
 
 import (
-	"bufio"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"net"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 	"sync"
@@ -27,103 +23,9 @@ import (
 
 type ScanRequest struct {
 	URLs        []string `json:"urls"`
+	Public      bool     `json:"public"`
 	Domains     []string `json:"domains"`
 	WordlistURL string   `json:"wordlist_url"`
-}
-
-type SubdomainResult struct {
-	Domain    string `json:"domain"`
-	Subdomain string `json:"subdomain"`
-	SSL       bool   `json:"ssl"`
-}
-
-func fetchRemoteWordlist(url string) ([]string, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var list []string
-	scanner := bufio.NewScanner(resp.Body)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line != "" {
-			list = append(list, line)
-		}
-	}
-
-	return list, scanner.Err()
-}
-
-func tryRequest(url string, useTLS bool) (bool, error) {
-	client := &http.Client{
-		Timeout: 5 * time.Second,
-	}
-	if useTLS {
-		client.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-	}
-
-	req, err := http.NewRequest("HEAD", url, nil)
-	if err != nil {
-		return false, err
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return false, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode >= 200 {
-		return true, nil
-	}
-	return false, nil
-}
-
-func scanSubdomain(wg *sync.WaitGroup, subdomain, domain string, found chan<- SubdomainResult) {
-	defer wg.Done()
-
-	full := fmt.Sprintf("%s.%s", subdomain, domain)
-
-	_, err := net.LookupHost(full)
-	if err != nil {
-		return
-	}
-
-	httpsURL := "https://" + full
-	if _, err := tryRequest(httpsURL, true); err == nil {
-		found <- SubdomainResult{
-			Domain:    domain,
-			Subdomain: full,
-			SSL:       true,
-		}
-		return
-	}
-
-	httpURL := "http://" + full
-	if _, err := tryRequest(httpURL, false); err == nil {
-		found <- SubdomainResult{
-			Domain:    domain,
-			Subdomain: full,
-			SSL:       false,
-		}
-	}
-}
-
-func AnalyzeSingleURL(client *http.Client, targetURL string) tasks.SiteAnalysis {
-	return tasks.AnalyzeSingleURL(client, targetURL)
-}
-
-func extractDomain(rawURL string) (string, error) {
-	u, err := url.Parse(rawURL)
-	if err != nil {
-		return "", err
-	}
-	host := u.Hostname()
-	return host, nil
 }
 
 func ScanHandler(c echo.Context) error {
@@ -144,14 +46,14 @@ func ScanHandler(c echo.Context) error {
 
 	var siteAnalyses []tasks.SiteAnalysis
 	for _, url := range req.URLs {
-		siteAnalyses = append(siteAnalyses, AnalyzeSingleURL(client, url))
+		siteAnalyses = append(siteAnalyses, tasks.AnalyzeSingleURL(client, url))
 	}
 
 	domains := req.Domains
 	if len(domains) == 0 {
 		domainSet := make(map[string]struct{})
 		for _, u := range req.URLs {
-			d, err := extractDomain(u)
+			d, err := tasks.ExtractDomain(u)
 			if err == nil && d != "" {
 				domainSet[d] = struct{}{}
 			}
@@ -161,14 +63,14 @@ func ScanHandler(c echo.Context) error {
 		}
 	}
 
-	var subdomainResults []SubdomainResult
+	var subdomainResults []tasks.SubdomainResult
 	if req.WordlistURL != "" && len(domains) > 0 {
-		wordlist, err := fetchRemoteWordlist(req.WordlistURL)
+		wordlist, err := tasks.FetchRemoteWordlist(req.WordlistURL)
 		if err != nil {
 			fmt.Printf("Warning: Failed to fetch wordlist: %v\n", err)
 		} else {
 			var wg sync.WaitGroup
-			found := make(chan SubdomainResult, 1000)
+			found := make(chan tasks.SubdomainResult, 1000)
 			var mutex sync.Mutex
 
 			var collectorWg sync.WaitGroup
@@ -193,7 +95,7 @@ func ScanHandler(c echo.Context) error {
 						continue
 					}
 					wg.Add(1)
-					go scanSubdomain(&wg, sub, domain, found)
+					go tasks.ScanSubdomain(&wg, sub, domain, found)
 					time.Sleep(2 * time.Millisecond)
 				}
 			}
@@ -229,9 +131,14 @@ func ScanHandler(c echo.Context) error {
 		})
 	}
 
+	if !req.Public {
+		req.Public = true
+	}
+
 	slug := generator.String(8, 16)
 	newScan := models.Scans{
 		Slug:      slug,
+		Public:    req.Public,
 		Urls:      string(jsonUrlsData),
 		CreatedAt: time.Now(),
 		Data:      string(jsonResultsData),

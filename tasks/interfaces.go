@@ -38,6 +38,12 @@ type MultiSiteResponse struct {
 	ExecutionTime time.Duration  `json:"execution_time"`
 }
 
+type SubdomainResult struct {
+	Domain    string `json:"domain"`
+	Subdomain string `json:"subdomain"`
+	SSL       bool   `json:"ssl"`
+}
+
 type ScanHeadersResponseReport struct {
 	URL             string      `json:"url"`
 	Server          string      `json:"server"`
