@@ -12,10 +12,6 @@ func GetScanPage(id string) string {
 	return fmt.Sprintf("%s/scan/%s", configs.HTMLPageURI, id)
 }
 
-func GetWordlistPage(id string) string {
-	return fmt.Sprintf("%s/wordlist/%s", configs.HTMLPageURI, id)
-}
-
 func GetOwnerProfilePage(user string) string {
 	return fmt.Sprintf("%s/user/%s", configs.HTMLPageURI, user)
 }
@@ -28,6 +24,14 @@ func GetScanApiReportPage(c echo.Context, id string) string {
 	return fmt.Sprintf("%s/scan/%s/export", configs.GetRootURL(c), id)
 }
 
+func GetWordlistPage(id string) string {
+	return fmt.Sprintf("%s/wordlist/%s", configs.HTMLPageURI, id)
+}
+
+func GetWordlistApiPage(c echo.Context, id string) string {
+	return fmt.Sprintf("%s/wordlists/%s", configs.GetRootURL(c), id)
+}
+
 func GetWordlistRawPage(c echo.Context, id string) string {
-	return fmt.Sprintf("%s/wordlist/%s/raw", configs.GetRootURL(c), id)
+	return fmt.Sprintf("%s/wordlists/%s/raw", configs.GetRootURL(c), id)
 }

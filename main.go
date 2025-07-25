@@ -64,6 +64,7 @@ func main() {
 	// API's Profile
 	e.GET("/user/:user", profile.ProfilePublic)
 	e.GET("/user/:user/scans", profile.ListPublicScans)
+	e.GET("/user/:user/wordlists", profile.ListPublicWordlists)
 
 	e.Start(":" + os.Getenv("PORT"))
 }
