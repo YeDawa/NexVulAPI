@@ -24,7 +24,7 @@ type ScanRequest struct {
 	URLs        []string `json:"urls"`
 	Public      bool     `json:"public"`
 	Domains     []string `json:"domains"`
-	WordlistURL string   `json:"wordlist_url"`
+	WordlistData string   `json:"wordlist_url"`
 }
 
 type Wordlist struct {
@@ -68,22 +68,23 @@ func ScanHandler(c echo.Context) error {
 	}
 
 	var subdomainResults []tasks.SubdomainResult
-	var WordlistURL Wordlist
-	if req.WordlistURL != "" && len(domains) > 0 {
+	var WordlistData Wordlist
+	
+	if req.WordlistData != "" && len(domains) > 0 {
 		var wordlist models.CustomWordlists
-		if err := configs.DB.Where("slug = ?", req.WordlistURL).First(&wordlist).Error; err != nil {
+		if err := configs.DB.Where("slug = ?", req.WordlistData).First(&wordlist).Error; err != nil {
 			return c.JSON(http.StatusNotFound, map[string]interface{}{
 				"success": false,
 				"error":   "Failed to retrieve wordlist: " + err.Error(),
 			})
 		}
 
-		WordlistURL = Wordlist{
+		WordlistData = Wordlist{
 			Id:  wordlist.Id,
 			URL: wordlist.Url,
 		}
 
-		fmt.Printf("Fetching wordlist from URL: %s\n", WordlistURL.URL)
+		fmt.Printf("Fetching wordlist from URL: %s\n", WordlistData.URL)
 
 		wordlistSlice, err := tasks.FetchRemoteWordlist(wordlist.Url)
 		if err != nil {
@@ -168,9 +169,9 @@ func ScanHandler(c echo.Context) error {
 	}
 
 	var wordlistSlug uint = 0
-	if req.WordlistURL != "" && len(subdomainResults) > 0 {
+	if req.WordlistData != "" && len(subdomainResults) > 0 {
 		newScan.Subdomains = string(jsonSubdomainsData)
-		newScan.Wordlist = WordlistURL.Id
+		newScan.Wordlist = WordlistData.Id
 	}
 
 	result := configs.DB.Create(&newScan)
