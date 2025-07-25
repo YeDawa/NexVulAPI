@@ -93,6 +93,7 @@ func ListUserWordlists(c echo.Context) error {
 			APIPage:    utils.GetWordlistApiPage(c, wordlist.Slug),
 		})
 	}
+	
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"success": true,
 		"data":    wordlistData,
