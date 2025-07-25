@@ -20,6 +20,7 @@ type CreateWordlistRequest struct {
 }
 
 type ImportWordlistResponse struct {
+	Id       uint   `json:"id"`
 	Slug     string `json:"slug"`
 	Success  bool   `json:"success"`
 	Message  string `json:"message"`
@@ -69,6 +70,7 @@ func ImportWordlist(c echo.Context) error {
 	response := ImportWordlistResponse{
 		Slug:     slug,
 		Success:  true,
+		Id:       customWordlist.Id,
 		HTMLPage: utils.GetWordlistPage(slug),
 		Message:  "Wordlist created successfully",
 	}
