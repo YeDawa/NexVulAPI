@@ -97,7 +97,7 @@ type CustomWordlists struct {
 	Slug       string    `gorm:"unique;not null;size:100"`
 	UserId     uint      `gorm:"not null"`
 	Name       string    `gorm:"not null;size:100"`
-	FileName   string    `gorm:"unique;not null;size:255"`
+	FileName   string    `gorm:"not null;size:255"`
 	Url        string    `gorm:"not null;size:255"`
 	Public     bool      `gorm:"default:true"`
 	TotalLines int       `gorm:"not null"`
