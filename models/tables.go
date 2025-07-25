@@ -99,6 +99,7 @@ type CustomWordlists struct {
 	Name       string    `gorm:"not null;size:100"`
 	FileName   string    `gorm:"unique;not null;size:255"`
 	Url        string    `gorm:"not null;size:255"`
+	Public     bool      `gorm:"default:true"`
 	TotalLines int       `gorm:"not null"`
 	CreatedAt  time.Time `gorm:"autoCreateTime"`
 }
