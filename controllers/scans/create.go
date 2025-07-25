@@ -16,7 +16,6 @@ import (
 	"nexvul/utils"
 
 	"nexvul/controllers/users"
-	"nexvul/controllers/wordlists"
 
 	"github.com/labstack/echo/v4"
 )
@@ -26,6 +25,11 @@ type ScanRequest struct {
 	Public      bool     `json:"public"`
 	Domains     []string `json:"domains"`
 	WordlistURL string   `json:"wordlist_url"`
+}
+
+type Wordlist struct {
+	Id  uint   `json:"id"`
+	URL string `json:"url"`
 }
 
 func ScanHandler(c echo.Context) error {
@@ -64,8 +68,24 @@ func ScanHandler(c echo.Context) error {
 	}
 
 	var subdomainResults []tasks.SubdomainResult
+	var WordlistURL Wordlist
 	if req.WordlistURL != "" && len(domains) > 0 {
-		wordlist, err := tasks.FetchRemoteWordlist(req.WordlistURL)
+		var wordlist models.CustomWordlists
+		if err := configs.DB.Where("slug = ?", req.WordlistURL).First(&wordlist).Error; err != nil {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"success": false,
+				"error":   "Failed to retrieve wordlist: " + err.Error(),
+			})
+		}
+
+		WordlistURL = Wordlist{
+			Id:  wordlist.Id,
+			URL: wordlist.Url,
+		}
+
+		fmt.Printf("Fetching wordlist from URL: %s\n", WordlistURL.URL)
+
+		wordlistSlice, err := tasks.FetchRemoteWordlist(wordlist.Url)
 		if err != nil {
 			fmt.Printf("Warning: Failed to fetch wordlist: %v\n", err)
 		} else {
@@ -89,7 +109,7 @@ func ScanHandler(c echo.Context) error {
 				if domain == "" {
 					continue
 				}
-				for _, sub := range wordlist {
+				for _, sub := range wordlistSlice {
 					sub = strings.TrimSpace(sub)
 					if sub == "" {
 						continue
@@ -131,6 +151,8 @@ func ScanHandler(c echo.Context) error {
 		})
 	}
 
+	fmt.Printf("%s\n", jsonSubdomainsData)
+
 	if !req.Public {
 		req.Public = true
 	}
@@ -148,17 +170,7 @@ func ScanHandler(c echo.Context) error {
 	var wordlistSlug uint = 0
 	if req.WordlistURL != "" && len(subdomainResults) > 0 {
 		newScan.Subdomains = string(jsonSubdomainsData)
-
-		wordlist, err := wordlists.CreateWordlist(req.WordlistURL, uint(userIDUint))
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"success": false,
-				"error":   "Failed to create wordlist",
-			})
-		}
-
-		wordlistSlug = wordlist.Id
-		newScan.Wordlist = wordlist.Id
+		newScan.Wordlist = WordlistURL.Id
 	}
 
 	result := configs.DB.Create(&newScan)
@@ -178,8 +190,8 @@ func ScanHandler(c echo.Context) error {
 		"message":        "Scan created successfully",
 	}
 
-	if len(subdomainResults) > 0 {
-		response["subdomains"] = subdomainResults
+	if len(jsonSubdomainsData) > 0 {
+		response["subdomains"] = jsonSubdomainsData
 		response["wordlist"] = wordlistSlug
 	}
 

@@ -10,7 +10,7 @@ func main() {
 	configs.InitDB()
 
 	configs.DB.Migrator().DropTable(
-		// &models.Scans{},
+		&models.Scans{},
 		&models.CustomWordlists{},
 	)
 
