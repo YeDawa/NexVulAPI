@@ -59,6 +59,7 @@ func main() {
 	e.POST("/wordlists", wordlists.ImportWordlist)
 	e.GET("/wordlists/:id", get_wordlist.GetWordlistDetails)
 	e.GET("/wordlists/:id/raw", get_wordlist.GetWordlistRawContent)
+	e.GET("/wordlists/preview", wordlists.GetWordlistPreviewContent)
 
 	// API's Profile
 	e.GET("/user/:user", profile.ProfilePublic)

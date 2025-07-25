@@ -2,6 +2,7 @@ package get_wordlist
 
 import (
 	"net/http"
+	"strings"
 
 	"nexvul/configs"
 	"nexvul/models"
@@ -30,15 +31,13 @@ func GetWordlistRawContent(c echo.Context) error {
 		})
 	}
 
-	var content string
+	var builder strings.Builder
 	err := utils.StreamRemoteFile(wordlist.Url, func(line string) {
-		if content == "" {
-			content = line
-		} else {
-			content += "\n" + line
-		}
+		builder.WriteString(line)
+		builder.WriteString("\n")
 	})
 
+	content := builder.String()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"success": false,
