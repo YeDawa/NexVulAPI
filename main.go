@@ -56,9 +56,9 @@ func main() {
 	e.GET("/scan/:id/export", get_scan.GenerateReport)
 
 	// API's Wordlists
-	e.POST("/wordlist", wordlists.ImportWordlist)
-	e.GET("/wordlist/:id", get_wordlist.GetWordlistDetails)
-	e.GET("/wordlist/:id/raw", get_wordlist.GetWordlistRawContent)
+	e.POST("/wordlists", wordlists.ImportWordlist)
+	e.GET("/wordlists/:id", get_wordlist.GetWordlistDetails)
+	e.GET("/wordlists/:id/raw", get_wordlist.GetWordlistRawContent)
 
 	// API's Profile
 	e.GET("/user/:user", profile.ProfilePublic)
