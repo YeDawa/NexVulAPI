@@ -49,7 +49,7 @@ func main() {
 
 	// API's User Autenticated Content
 	e.GET("/users/me", account.UserLogged)
-	e.GET("/users/wordlists", wordlists.ListUserWordlists)
+	e.GET("/users/me/wordlists", wordlists.ListUserWordlists)
 
 	// API's Scans
 	e.POST("/scan", scans.ScanHandler)
