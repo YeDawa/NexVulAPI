@@ -17,6 +17,7 @@ type WordlistResponse struct {
 	Id         string        `json:"id"`
 	RawUrl     string        `json:"raw_url"`
 	Name       string        `json:"name"`
+	Public     bool          `json:"public"`
 	FileName   string        `json:"file_name"`
 	TotalLines uint          `json:"total_lines"`
 	Owner      WordlistOwner `json:"owner,omitempty"`
@@ -73,6 +74,7 @@ func GetWordlistDetails(c echo.Context) error {
 	response := WordlistResponse{
 		Id:         wordlist.Slug,
 		Name:       wordlist.Name,
+		Public:     wordlist.Public,
 		FileName:   wordlist.FileName,
 		TotalLines: uint(wordlist.TotalLines),
 		CreatedAt:  wordlist.CreatedAt.Format(time.RFC3339),
