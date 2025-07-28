@@ -11,10 +11,10 @@ import (
 	"nexvul/controllers/account"
 	"nexvul/controllers/profile"
 	"nexvul/controllers/scans"
-	get_scan "nexvul/controllers/scans/get"
+	"nexvul/controllers/scans/get"
 	"nexvul/controllers/users"
 	"nexvul/controllers/wordlists"
-	get_wordlist "nexvul/controllers/wordlists/get"
+	"nexvul/controllers/wordlists/get"
 )
 
 func main() {
