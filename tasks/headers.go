@@ -12,6 +12,7 @@ import (
 func AnalyzeSingleURL(client *http.Client, targetURL string) SiteAnalysis {
 	executionStart := time.Now()
 	analysis := SiteAnalysis{URL: targetURL}
+	ip := utils.GetIPFromURL(targetURL)
 
 	resp, err := client.Head(targetURL)
 	if err != nil || resp == nil {
@@ -62,6 +63,7 @@ func AnalyzeSingleURL(client *http.Client, targetURL string) SiteAnalysis {
 		score = 0
 	}
 
+	analysis.Ip = ip
 	analysis.Results = results
 	analysis.StatusCode = resp.StatusCode
 	analysis.Server = resp.Header.Get("Server")

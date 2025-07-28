@@ -25,6 +25,7 @@ type SiteAnalysis struct {
 	HttpMethod      string           `json:"method,omitempty"`
 	ExecutionTime   time.Duration    `json:"execution_time"`
 	StatusCode      int              `json:"status_code,omitempty"`
+	Ip              string           `json:"ip,omitempty"`
 	ContentType     string           `json:"content_type,omitempty"`
 	Results         []AnalysisResult `json:"results"`
 	Subdomains      []string         `json:"subdomains"`
