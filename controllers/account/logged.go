@@ -22,7 +22,7 @@ func UserLogged(c echo.Context) error {
 	if len(parts) < 2 {
 		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 			"success": false,
-			"error":   "Unauthorized: Invalid cookie format",
+			"error":   "Unauthorized user",
 		})
 	}
 
@@ -53,10 +53,24 @@ func UserLogged(c echo.Context) error {
 	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND public = 'true'", userID).Count(&publicScans)
 	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND public = 'false'", userID).Count(&privateScans)
 
-	stats := map[string]int64{
+	var totalWordlists int64
+	var publicWordlists int64
+	var privateWordlists int64
+
+	configs.DB.Model(&models.CustomWordlists{}).Where("user_id = ?", userID).Count(&totalWordlists)
+	configs.DB.Model(&models.CustomWordlists{}).Where("user_id = ? AND public = 'true'", userID).Count(&publicWordlists)
+	configs.DB.Model(&models.CustomWordlists{}).Where("user_id = ? AND public = 'false'", userID).Count(&privateWordlists)
+
+	statsScans := map[string]int64{
 		"total":   totalScans,
 		"public":  publicScans,
 		"private": privateScans,
+	}
+
+	statsWordlists := map[string]int64{
+		"total":   totalWordlists,
+		"public":  publicWordlists,
+		"private": privateWordlists,
 	}
 
 	profileData := map[string]string{
@@ -81,6 +95,7 @@ func UserLogged(c echo.Context) error {
 		"api_key":    user.ApiKey,
 		"avatar":     gravatar.New(user.Email).Size(300).AvatarURL(),
 		"profile":    profileData,
-		"stats":      stats,
+		"scans":      statsScans,
+		"wordlists":  statsWordlists,
 	})
 }
