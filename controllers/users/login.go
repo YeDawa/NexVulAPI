@@ -1,7 +1,6 @@
 package users
 
 import (
-	"encoding/base64"
 	"net/http"
 
 	"nexvul/configs"
@@ -50,9 +49,7 @@ func Login(c echo.Context) error {
 		})
 	}
 
-	salt, _ := base64.StdEncoding.DecodeString(user.Salt)
-
-	if !security.VerifyPassword(req.Password, user.Password, salt) {
+	if !security.VerifyPassword(req.Password, user.Password) {
 		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 			"success": false,
 			"error":   "Invalid email or password",

@@ -1,26 +1,18 @@
 package security
 
-import (
-	"crypto/rand"
-	"encoding/base64"
-	"golang.org/x/crypto/argon2"
-)
+import "github.com/alexedwards/argon2id"
 
-func GenerateRandomSalt(size int) ([]byte, error) {
-	salt := make([]byte, size)
-	_, err := rand.Read(salt)
-	if err != nil {
-		return nil, err
-	}
-	return salt, nil
+func HashPassword(password string) (string, error) {
+	return argon2id.CreateHash(password, &argon2id.Params{
+		Memory:      64 * 1024,
+		Iterations:  3,
+		Parallelism: 2,
+		SaltLength:  16,
+		KeyLength:   32,
+	})
 }
 
-func HashPassword(password string, salt []byte) string {
-	hash := argon2.IDKey([]byte(password), salt, 1, 64*1024, 4, 32)
-	return base64.StdEncoding.EncodeToString(hash)
-}
-
-func VerifyPassword(password, hashedPassword string, salt []byte) bool {
-	expectedHash := HashPassword(password, salt)
-	return hashedPassword == expectedHash
+func VerifyPassword(password, hashed string) bool {
+	match, err := argon2id.ComparePasswordAndHash(password, hashed)
+	return err == nil && match
 }

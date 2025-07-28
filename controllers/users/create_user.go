@@ -39,14 +39,22 @@ func CreateUser(c echo.Context) error {
 	}
 
 	apiKey := "hs_" + generator.String(32, 36)
-	salt, _ := security.GenerateRandomSalt(16)
+	salt, _ := generator.GenerateRandomSalt(16)
 
+	hashedPassword, err := security.HashPassword(req.Password)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"error":   "Failed to hash password",
+		})
+	}
+	
 	newUser := models.Users{
 		Name:     req.Name,
 		Username: req.Username,
 		Email:    req.Email,
 		ApiKey:   apiKey,
-		Password: security.HashPassword(req.Password, salt),
+		Password: hashedPassword,
 		Salt:     base64.StdEncoding.EncodeToString(salt),
 	}
 
