@@ -25,7 +25,7 @@ func SetCookie(c echo.Context, name, value string, hoursDuration int) {
 		Path:     "/",
 		MaxAge:   hoursDuration * 3600,
 		HttpOnly: true,
-		Secure:   !isDevelopment,
+		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 		Domain:   domain,
 	}
