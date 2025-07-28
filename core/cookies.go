@@ -20,14 +20,14 @@ func SetCookie(c echo.Context, name, value string, hoursDuration int) {
 	}
 
 	cookie := &http.Cookie{
-		Name:     name,
-		Value:    value,
 		Path:     "/",
-		MaxAge:   hoursDuration * 3600,
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
+		Name:     name,
+		Value:    value,
 		Domain:   domain,
+		MaxAge:   hoursDuration * 3600,
+		SameSite: http.SameSiteLaxMode,
 	}
 
 	if isDevelopment {
