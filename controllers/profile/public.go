@@ -29,7 +29,8 @@ type ProfileDetails struct {
 }
 
 type ProfileStats struct {
-	Owned int64 `json:"owned"`
+	Scans     int64 `json:"scans"`
+	Wordlists int64 `json:"wordlists"`
 }
 
 func ProfilePublic(c echo.Context) error {
@@ -58,7 +59,10 @@ func ProfilePublic(c echo.Context) error {
 	}
 
 	var totalScans int64
+	var totalWordlists int64
+	
 	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND public = 'true'", uint(userIDUint)).Count(&totalScans)
+	configs.DB.Model(&models.CustomWordlists{}).Where("user_id = ? AND public = 'true'", uint(userIDUint)).Count(&totalWordlists)
 
 	ProfileDetails := ProfileDetails{
 		Avatar:     users.GetAvatarByID(UserInfo.Id),
@@ -75,7 +79,8 @@ func ProfilePublic(c echo.Context) error {
 	}
 
 	ProfileStats := ProfileStats{
-		Owned: totalScans,
+		Scans:     totalScans,
+		Wordlists: totalWordlists,
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
