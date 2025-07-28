@@ -22,6 +22,7 @@ type HeaderResult struct {
 }
 
 type ScanData struct {
+	Ip              string         `json:"ip,omitempty"`
 	URL             string         `json:"url"`
 	Server          string         `json:"server"`
 	Method          string         `json:"method"`
