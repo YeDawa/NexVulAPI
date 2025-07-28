@@ -81,10 +81,7 @@ func ScanHandler(c echo.Context) error {
 
 		WordlistData = Wordlist{
 			Id:  wordlist.Id,
-			URL: wordlist.Url,
 		}
-
-		fmt.Printf("Fetching wordlist from URL: %s\n", WordlistData.URL)
 
 		wordlistSlice, err := tasks.FetchRemoteWordlist(wordlist.Url)
 		if err != nil {
@@ -167,8 +164,6 @@ func ScanHandler(c echo.Context) error {
 			"error":   "Failed to serialize subdomains",
 		})
 	}
-
-	fmt.Printf("%s\n", jsonSubdomainsData)
 
 	if !req.Public {
 		req.Public = true
