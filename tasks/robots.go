@@ -8,18 +8,6 @@ import (
 	"time"
 )
 
-type RobotsDirective struct {
-	UserAgent string   `json:"user_agent"`
-	Allow     []string `json:"allow"`
-	Disallow  []string `json:"disallow"`
-}
-
-type RobotsData struct {
-	Target    string            `json:"target"`
-	Sitemaps  []string          `json:"sitemaps"`
-	Directives []RobotsDirective `json:"directives"`
-}
-
 func ParseRobotsTxt(target string) (RobotsData, error) {
 	robotsURL := strings.TrimSuffix(normalizeURL(target), "/") + "/robots.txt"
 	client := &http.Client{Timeout: 10 * time.Second}

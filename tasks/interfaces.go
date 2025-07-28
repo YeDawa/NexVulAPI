@@ -3,8 +3,8 @@ package tasks
 import "time"
 
 type RequestPayload struct {
-	URLs []string `json:"urls"`
-	WordlistURL string `json:"wordlist_url"`
+	URLs        []string `json:"urls"`
+	WordlistURL string   `json:"wordlist_url"`
 }
 
 type AnalysisResult struct {
@@ -42,6 +42,18 @@ type SubdomainResult struct {
 	Domain    string `json:"domain"`
 	Subdomain string `json:"subdomain"`
 	SSL       bool   `json:"ssl"`
+}
+
+type RobotsDirective struct {
+	UserAgent string   `json:"user_agent"`
+	Allow     []string `json:"allow"`
+	Disallow  []string `json:"disallow"`
+}
+
+type RobotsData struct {
+	Target     string            `json:"target"`
+	Sitemaps   []string          `json:"sitemaps"`
+	Directives []RobotsDirective `json:"directives"`
 }
 
 type ScanHeadersResponseReport struct {
