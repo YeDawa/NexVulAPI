@@ -4,91 +4,84 @@ import (
 	"bufio"
 	"fmt"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 )
 
-type RobotsExposure struct {
-	Target  string              `json:"target"`
-	Domain  string              `json:"domain"`
-	Exposed []SensitiveExposure `json:"exposed_paths"`
+type RobotsDirective struct {
+	UserAgent string   `json:"user_agent"`
+	Allow     []string `json:"allow"`
+	Disallow  []string `json:"disallow"`
 }
 
-type SensitiveExposure struct {
-	Path       string `json:"path"`
-	FullURL    string `json:"full_url"`
-	Reason     string `json:"reason"`
-	UserAgent  string `json:"user_agent"`
-	Accessible bool   `json:"accessible"`
+type RobotsData struct {
+	Target    string            `json:"target"`
+	Sitemaps  []string          `json:"sitemaps"`
+	Directives []RobotsDirective `json:"directives"`
 }
 
-var sensitivePaths = []string{
-	"/admin/", "/administrator/", "/backup/", "/backups/", "/config/", "/configuration/", "/database/", "/databases/", "/private/", "/priv/",
-	"/dev/", "/development/", "/internal/", "/test/", "/testing/", "/old/", "/hidden/", "/users/", "/user/", "/logs/",
-	"/log/", "/data/", "/dump/", "/tmp/", "/temp/", "/secret/", "/secrets/", "/.git/", "/.env/", "/.htaccess/",
-	"/.htpasswd/", "/api/", "/api/v1/", "/api/v2/", "/staging/", "/sandbox/", "/debug/", "/core/", "/bin/", "/cgi-bin/",
-	"/conf/", "/etc/", "/uploads/", "/upload/", "/downloads/", "/download/", "/scripts/", "/source/", "/src/", "/passwords/",
-	// WordPress sensitive paths
-	"/wp-admin/", "/wp-login.php", "/wp-config.php", "/wp-content/", "/wp-includes/", "/wp-json/", "/wp-cron.php", "/wp-signup.php", "/wp-links-opml.php", "/wp-comments-post.php",
-}
-
-func AnalyzeRobotsSensitivePaths(rawURL string) (RobotsExposure, error) {
-	target := normalizeURL(rawURL)
-	robotsURL := strings.TrimSuffix(target, "/") + "/robots.txt"
-
+func ParseRobotsTxt(target string) (RobotsData, error) {
+	robotsURL := strings.TrimSuffix(normalizeURL(target), "/") + "/robots.txt"
 	client := &http.Client{Timeout: 10 * time.Second}
+
 	resp, err := client.Get(robotsURL)
 	if err != nil {
-		return RobotsExposure{}, fmt.Errorf("error accessing robots.txt: %v", err)
+		return RobotsData{}, fmt.Errorf("error accessing robots.txt: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return RobotsExposure{}, fmt.Errorf("robots.txt not found (%d)", resp.StatusCode)
+		return RobotsData{}, fmt.Errorf("robots.txt not found (%d)", resp.StatusCode)
 	}
 
-	var robotsLines []string
+	var (
+		currentAgent string
+		directives   = make(map[string]*RobotsDirective)
+		sitemaps     []string
+	)
+
 	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
-		robotsLines = append(robotsLines, line)
-	}
 
-	domain := extractDomain(target)
-	report := RobotsExposure{Target: target, Domain: domain}
-
-	for _, sensitive := range sensitivePaths {
-		for _, line := range robotsLines {
-			if strings.Contains(line, sensitive) {
-				fullURL := joinURL(target, sensitive)
-				accessible := isURLAccessible(fullURL)
-
-				report.Exposed = append(report.Exposed, SensitiveExposure{
-					Path:       sensitive,
-					FullURL:    fullURL,
-					Reason:     "path listed in robots.txt",
-					UserAgent:  extractUserAgent(line),
-					Accessible: accessible,
-				})
-
-				break
+		if strings.HasPrefix(strings.ToLower(line), "user-agent:") {
+			currentAgent = strings.TrimSpace(strings.SplitN(line, ":", 2)[1])
+			if _, exists := directives[currentAgent]; !exists {
+				directives[currentAgent] = &RobotsDirective{
+					UserAgent: currentAgent,
+					Allow:     []string{},
+					Disallow:  []string{},
+				}
 			}
+		} else if strings.HasPrefix(strings.ToLower(line), "disallow:") {
+			if currentAgent != "" {
+				path := strings.TrimSpace(strings.SplitN(line, ":", 2)[1])
+				directives[currentAgent].Disallow = append(directives[currentAgent].Disallow, path)
+			}
+		} else if strings.HasPrefix(strings.ToLower(line), "allow:") {
+			if currentAgent != "" {
+				path := strings.TrimSpace(strings.SplitN(line, ":", 2)[1])
+				directives[currentAgent].Allow = append(directives[currentAgent].Allow, path)
+			}
+		} else if strings.HasPrefix(strings.ToLower(line), "sitemap:") {
+			sitemap := strings.TrimSpace(strings.SplitN(line, ":", 2)[1])
+			sitemaps = append(sitemaps, sitemap)
 		}
 	}
 
-	return report, nil
-}
-
-func extractUserAgent(line string) string {
-	if strings.HasPrefix(strings.ToLower(line), "user-agent:") {
-		return strings.TrimSpace(strings.SplitN(line, ":", 2)[1])
+	var result []RobotsDirective
+	for _, v := range directives {
+		result = append(result, *v)
 	}
 
-	return "*"
+	return RobotsData{
+		Target:    target,
+		Sitemaps:  sitemaps,
+		Directives: result,
+	}, nil
 }
 
 func normalizeURL(u string) string {
@@ -96,31 +89,4 @@ func normalizeURL(u string) string {
 		return "https://" + u
 	}
 	return u
-}
-
-func joinURL(base, path string) string {
-	u, err := url.Parse(base)
-	if err != nil {
-		return base + path
-	}
-	u.Path = strings.TrimSuffix(u.Path, "/") + path
-	return u.String()
-}
-
-func isURLAccessible(fullURL string) bool {
-	client := &http.Client{Timeout: 5 * time.Second}
-	resp, err := client.Get(fullURL)
-	if err != nil {
-		return false
-	}
-	defer resp.Body.Close()
-	return resp.StatusCode == http.StatusOK
-}
-
-func extractDomain(rawURL string) string {
-	u, err := url.Parse(rawURL)
-	if err != nil {
-		return ""
-	}
-	return u.Hostname()
 }

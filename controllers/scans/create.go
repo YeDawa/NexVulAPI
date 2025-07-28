@@ -124,10 +124,11 @@ func ScanHandler(c echo.Context) error {
 		}
 	}
 
-	var robotsResults []tasks.RobotsExposure
+	var robotsResults []tasks.RobotsData
 	for _, url := range req.URLs {
-		report, err := tasks.AnalyzeRobotsSensitivePaths(url)
-		if err == nil && len(report.Exposed) > 0 {
+		report, err := tasks.ParseRobotsTxt(url)
+		
+		if err == nil && len(report.Directives) > 0 {
 			robotsResults = append(robotsResults, report)
 		}
 	}

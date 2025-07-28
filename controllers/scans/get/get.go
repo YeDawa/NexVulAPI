@@ -39,18 +39,18 @@ type DomainGroup struct {
 }
 
 type ScanResponse struct {
-	Id         string                 `json:"id"`
-	Data       []ScanData             `json:"data"`
-	Urls       []string               `json:"urls"`
-	Subdomains []DomainGroup          `json:"subdomains,omitempty"`
-	Wordlist   ScanWordlist           `json:"wordlist,omitempty"`
-	Robots     []tasks.RobotsExposure `json:"robots,omitempty"`
-	HtmlPage   string                 `json:"html_page"`
-	ReportPage string                 `json:"report_page"`
-	ApiPage    string                 `json:"api_page"`
-	Public     bool                   `json:"public"`
-	Owner      ScanOwner              `json:"owner,omitempty"`
-	CreatedAt  string                 `json:"created_at"`
+	Id         string             `json:"id"`
+	Data       []ScanData         `json:"data"`
+	Urls       []string           `json:"urls"`
+	Subdomains []DomainGroup      `json:"subdomains,omitempty"`
+	Wordlist   ScanWordlist       `json:"wordlist,omitempty"`
+	Robots     []tasks.RobotsData `json:"robots,omitempty"`
+	HtmlPage   string             `json:"html_page"`
+	ReportPage string             `json:"report_page"`
+	ApiPage    string             `json:"api_page"`
+	Public     bool               `json:"public"`
+	Owner      ScanOwner          `json:"owner,omitempty"`
+	CreatedAt  string             `json:"created_at"`
 }
 
 type ScanOwner struct {
@@ -95,7 +95,7 @@ func GetScanDetails(c echo.Context) error {
 	var scanData []ScanData
 	var urls []string
 	var domainGroups []DomainGroup
-	var robots []tasks.RobotsExposure
+	var robots []tasks.RobotsData
 
 	if scans.Subdomains != "" {
 		var subdomainList []SubdomainInfo
