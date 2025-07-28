@@ -48,65 +48,48 @@ func AnalyzeRobotsSensitivePaths(rawURL string) (RobotsExposure, error) {
 		return RobotsExposure{}, fmt.Errorf("robots.txt não encontrado (%d)", resp.StatusCode)
 	}
 
+	// Lê todo conteúdo do robots.txt para buscar os sensitivePaths
+	var robotsLines []string
 	scanner := bufio.NewScanner(resp.Body)
-	currentAgent := ""
-	disallowMap := make(map[string][]string)
-	allowMap := make(map[string][]string)
-
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
-
-		parts := strings.SplitN(line, ":", 2)
-		if len(parts) != 2 {
-			continue
-		}
-
-		key := strings.ToLower(strings.TrimSpace(parts[0]))
-		value := strings.TrimSpace(parts[1])
-
-		switch key {
-		case "user-agent":
-			currentAgent = value
-		case "disallow":
-			disallowMap[currentAgent] = append(disallowMap[currentAgent], value)
-		case "allow":
-			allowMap[currentAgent] = append(allowMap[currentAgent], value)
-		}
+		robotsLines = append(robotsLines, line)
 	}
 
 	domain := extractDomain(target)
 	report := RobotsExposure{Target: target, Domain: domain}
-	for agent := range disallowMap {
-		for _, sensitive := range sensitivePaths {
-			allowed := containsPrefix(allowMap[agent], sensitive)
-			disallowed := containsPrefix(disallowMap[agent], sensitive)
 
-			reason := ""
-			if allowed {
-				reason = "explicitly allowed"
-			} else if !disallowed {
-				reason = "not disallowed"
-			}
-
-			if reason != "" {
+	for _, sensitive := range sensitivePaths {
+		for _, line := range robotsLines {
+			if strings.Contains(line, sensitive) {
 				fullURL := joinURL(target, sensitive)
 				accessible := isURLAccessible(fullURL)
 
 				report.Exposed = append(report.Exposed, SensitiveExposure{
 					Path:       sensitive,
 					FullURL:    fullURL,
-					Reason:     reason,
-					UserAgent:  agent,
+					Reason:     "path listed in robots.txt",
+					UserAgent:  extractUserAgent(line),
 					Accessible: accessible,
 				})
+
+				break
 			}
 		}
 	}
 
 	return report, nil
+}
+
+func extractUserAgent(line string) string {
+	if strings.HasPrefix(strings.ToLower(line), "user-agent:") {
+		return strings.TrimSpace(strings.SplitN(line, ":", 2)[1])
+	}
+	
+	return "*"
 }
 
 func normalizeURL(u string) string {
