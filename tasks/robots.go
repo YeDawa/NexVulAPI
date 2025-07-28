@@ -40,15 +40,14 @@ func AnalyzeRobotsSensitivePaths(rawURL string) (RobotsExposure, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Get(robotsURL)
 	if err != nil {
-		return RobotsExposure{}, fmt.Errorf("erro ao acessar robots.txt: %v", err)
+		return RobotsExposure{}, fmt.Errorf("error accessing robots.txt: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return RobotsExposure{}, fmt.Errorf("robots.txt não encontrado (%d)", resp.StatusCode)
+		return RobotsExposure{}, fmt.Errorf("robots.txt not found (%d)", resp.StatusCode)
 	}
 
-	// Lê todo conteúdo do robots.txt para buscar os sensitivePaths
 	var robotsLines []string
 	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
@@ -88,7 +87,7 @@ func extractUserAgent(line string) string {
 	if strings.HasPrefix(strings.ToLower(line), "user-agent:") {
 		return strings.TrimSpace(strings.SplitN(line, ":", 2)[1])
 	}
-	
+
 	return "*"
 }
 
@@ -97,15 +96,6 @@ func normalizeURL(u string) string {
 		return "https://" + u
 	}
 	return u
-}
-
-func containsPrefix(list []string, path string) bool {
-	for _, item := range list {
-		if strings.HasPrefix(path, item) || strings.HasPrefix(item, path) {
-			return true
-		}
-	}
-	return false
 }
 
 func joinURL(base, path string) string {
