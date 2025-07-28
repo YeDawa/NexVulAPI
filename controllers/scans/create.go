@@ -185,7 +185,6 @@ func ScanHandler(c echo.Context) error {
 		UserId:    uint(userIDUint),
 	}
 
-	var wordlistSlug uint = 0
 	if req.WordlistData != "" && len(subdomainResults) > 0 {
 		newScan.Subdomains = string(jsonSubdomainsData)
 		newScan.Wordlist = WordlistData.Id
@@ -202,15 +201,9 @@ func ScanHandler(c echo.Context) error {
 	response := map[string]interface{}{
 		"success":        true,
 		"id":             slug,
-		"results":        siteAnalyses,
 		"execution_time": executionTime,
 		"html_page":      utils.GetScanPage(slug),
 		"message":        "Scan created successfully",
-	}
-
-	if len(jsonSubdomainsData) > 0 {
-		response["subdomains"] = jsonSubdomainsData
-		response["wordlist"] = wordlistSlug
 	}
 
 	return c.JSON(http.StatusCreated, response)
