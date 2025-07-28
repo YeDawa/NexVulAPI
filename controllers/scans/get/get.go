@@ -8,6 +8,7 @@ import (
 	"nexvul/configs"
 	"nexvul/controllers/users"
 	"nexvul/models"
+	"nexvul/tasks"
 	"nexvul/utils"
 
 	"github.com/labstack/echo/v4"
@@ -38,17 +39,18 @@ type DomainGroup struct {
 }
 
 type ScanResponse struct {
-	Id         string        `json:"id"`
-	Data       []ScanData    `json:"data"`
-	Urls       []string      `json:"urls"`
-	Subdomains []DomainGroup `json:"subdomains,omitempty"`
-	Wordlist   ScanWordlist  `json:"wordlist,omitempty"`
-	HtmlPage   string        `json:"html_page"`
-	ReportPage string        `json:"report_page"`
-	ApiPage    string        `json:"api_page"`
-	Public     bool          `json:"public"`
-	Owner      ScanOwner     `json:"owner,omitempty"`
-	CreatedAt  string        `json:"created_at"`
+	Id         string                 `json:"id"`
+	Data       []ScanData             `json:"data"`
+	Urls       []string               `json:"urls"`
+	Subdomains []DomainGroup          `json:"subdomains,omitempty"`
+	Wordlist   ScanWordlist           `json:"wordlist,omitempty"`
+	Robots     []tasks.RobotsExposure `json:"robots,omitempty"`
+	HtmlPage   string                 `json:"html_page"`
+	ReportPage string                 `json:"report_page"`
+	ApiPage    string                 `json:"api_page"`
+	Public     bool                   `json:"public"`
+	Owner      ScanOwner              `json:"owner,omitempty"`
+	CreatedAt  string                 `json:"created_at"`
 }
 
 type ScanOwner struct {
@@ -93,6 +95,7 @@ func GetScanDetails(c echo.Context) error {
 	var scanData []ScanData
 	var urls []string
 	var domainGroups []DomainGroup
+	var robots []tasks.RobotsExposure
 
 	if scans.Subdomains != "" {
 		var subdomainList []SubdomainInfo
@@ -123,6 +126,13 @@ func GetScanDetails(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"success": false,
 			"error":   "Failed to deserialize 'urls' field: " + err.Error(),
+		})
+	}
+
+	if err := json.Unmarshal([]byte(scans.Robots), &robots); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"error":   "Failed to deserialize 'robots' field: " + err.Error(),
 		})
 	}
 
@@ -167,6 +177,7 @@ func GetScanDetails(c echo.Context) error {
 		Id:         scans.Slug,
 		Data:       scanData,
 		Subdomains: domainGroups,
+		Robots:     robots,
 		Urls:       urls,
 		Public:     scans.Public,
 		Wordlist:   wordlistData,

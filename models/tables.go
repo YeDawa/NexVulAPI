@@ -43,6 +43,7 @@ type Scans struct {
 	Slug       string    `gorm:"uniqueIndex;column:slug" json:"slug"`
 	Urls       string    `gorm:"not null;size:255"`
 	Subdomains string    `gorm:"type:text"`
+	Robots     string    `gorm:"type:text"`
 	Wordlist   uint      `gorm:"size:255"`
 	Data       string    `gorm:"type:text"`
 	Public     bool      `gorm:"default:true"`

@@ -11,7 +11,7 @@ func main() {
 
 	configs.DB.Migrator().DropTable(
 		&models.Scans{},
-		&models.CustomWordlists{},
+		// &models.CustomWordlists{},
 	)
 
 	configs.DB.AutoMigrate(

@@ -21,9 +21,9 @@ import (
 )
 
 type ScanRequest struct {
-	URLs        []string `json:"urls"`
-	Public      bool     `json:"public"`
-	Domains     []string `json:"domains"`
+	URLs         []string `json:"urls"`
+	Public       bool     `json:"public"`
+	Domains      []string `json:"domains"`
 	WordlistData string   `json:"wordlist_url"`
 }
 
@@ -69,7 +69,7 @@ func ScanHandler(c echo.Context) error {
 
 	var subdomainResults []tasks.SubdomainResult
 	var WordlistData Wordlist
-	
+
 	if req.WordlistData != "" && len(domains) > 0 {
 		var wordlist models.CustomWordlists
 		if err := configs.DB.Where("slug = ?", req.WordlistData).First(&wordlist).Error; err != nil {
@@ -127,6 +127,22 @@ func ScanHandler(c echo.Context) error {
 		}
 	}
 
+	var robotsResults []tasks.RobotsExposure
+	for _, url := range req.URLs {
+		report, err := tasks.AnalyzeRobotsSensitivePaths(url)
+		if err == nil && len(report.Exposed) > 0 {
+			robotsResults = append(robotsResults, report)
+		}
+	}
+
+	jsonRobotsData, err := json.Marshal(robotsResults)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"error":   "Failed to serialize robots.txt data",
+		})
+	}
+
 	executionTime := time.Since(startTime)
 	jsonResultsData, err := json.Marshal(siteAnalyses)
 	if err != nil {
@@ -165,6 +181,7 @@ func ScanHandler(c echo.Context) error {
 		Urls:      string(jsonUrlsData),
 		CreatedAt: time.Now(),
 		Data:      string(jsonResultsData),
+		Robots:    string(jsonRobotsData),
 		UserId:    uint(userIDUint),
 	}
 
