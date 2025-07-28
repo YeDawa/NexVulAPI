@@ -1,7 +1,6 @@
 package users
 
 import (
-	"encoding/base64"
 	"net/http"
 	"strconv"
 
@@ -39,7 +38,6 @@ func CreateUser(c echo.Context) error {
 	}
 
 	apiKey := "hs_" + generator.String(32, 36)
-	salt, _ := generator.GenerateRandomSalt(16)
 
 	hashedPassword, err := security.HashPassword(req.Password)
 	if err != nil {
@@ -48,14 +46,13 @@ func CreateUser(c echo.Context) error {
 			"error":   "Failed to hash password",
 		})
 	}
-	
+
 	newUser := models.Users{
 		Name:     req.Name,
 		Username: req.Username,
 		Email:    req.Email,
 		ApiKey:   apiKey,
 		Password: hashedPassword,
-		Salt:     base64.StdEncoding.EncodeToString(salt),
 	}
 
 	result := configs.DB.Create(&newUser)
