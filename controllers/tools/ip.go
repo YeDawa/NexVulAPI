@@ -1,4 +1,4 @@
-package services
+package tools
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 )
 
 func GetIPInfo(c echo.Context) error {
-	ip := c.QueryParam("ip")
+	ip := c.Param("ip")
 	if ip == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "IP address is required"})
 	}

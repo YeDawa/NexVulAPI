@@ -11,10 +11,11 @@ import (
 	"nexvul/controllers/account"
 	"nexvul/controllers/profile"
 	"nexvul/controllers/scans"
-	"nexvul/controllers/scans/get"
+	get_scan "nexvul/controllers/scans/get"
+	"nexvul/controllers/tools"
 	"nexvul/controllers/users"
 	"nexvul/controllers/wordlists"
-	"nexvul/controllers/wordlists/get"
+	get_wordlist "nexvul/controllers/wordlists/get"
 )
 
 func main() {
@@ -66,6 +67,9 @@ func main() {
 	e.GET("/user/:user", profile.ProfilePublic)
 	e.GET("/user/:user/scans", profile.ListPublicScans)
 	e.GET("/user/:user/wordlists", profile.ListPublicWordlists)
+
+	// External API's
+	e.GET("/ext/ip/:ip", tools.GetIPInfo)
 
 	e.Start(":" + os.Getenv("PORT"))
 }
