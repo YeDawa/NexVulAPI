@@ -100,12 +100,12 @@ func ListUserWordlists(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"success":           true,
-		"data":              wordlistData,
-		"page":              page,
-		"limit":             limit,
-		"total":             total,
-		"public_wordlists":  publicWordlists,
-		"private_wordlists": privateWordlists,
+		"success": true,
+		"data":    wordlistData,
+		"page":    page,
+		"limit":   limit,
+		"total":   total,
+		"public":  publicWordlists,
+		"private": privateWordlists,
 	})
 }

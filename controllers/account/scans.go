@@ -113,12 +113,12 @@ func ListUserScans(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"success":       true,
-		"data":          scanData,
-		"page":          page,
-		"limit":         limit,
-		"total":         total,
-		"public_scans":  publicScans,
-		"private_scans": privateScans,
+		"success": true,
+		"data":    scanData,
+		"page":    page,
+		"limit":   limit,
+		"total":   total,
+		"public":  publicScans,
+		"private": privateScans,
 	})
 }
