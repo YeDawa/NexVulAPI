@@ -73,7 +73,7 @@ func ListUserScans(c echo.Context) error {
 	var publicScans int64
 	var privateScans int64
 
-	query.Model(&models.Scans{}).Count(&total)
+	configs.DB.Model(&models.Scans{}).Where("user_id = ?", userID).Count(&total)
 	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND public = 'true'", userID).Count(&publicScans)
 	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND public = 'false'", userID).Count(&privateScans)
 

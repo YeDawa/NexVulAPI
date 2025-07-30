@@ -70,7 +70,12 @@ func ListUserWordlists(c echo.Context) error {
 	query = query.Order(orderBy)
 
 	var total int64
-	query.Model(&models.CustomWordlists{}).Count(&total)
+	var publicWordlists int64
+	var privateWordlists int64
+
+	configs.DB.Model(&models.CustomWordlists{}).Where("user_id = ?", userID).Count(&total)
+	configs.DB.Model(&models.CustomWordlists{}).Where("user_id = ? AND public = 'true'", userID).Count(&publicWordlists)
+	configs.DB.Model(&models.CustomWordlists{}).Where("user_id = ? AND public = 'false'", userID).Count(&privateWordlists)
 
 	var wordlistsResponse []models.CustomWordlists
 	result := query.Limit(limit).Offset(offset).Find(&wordlistsResponse)
@@ -95,10 +100,12 @@ func ListUserWordlists(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"success": true,
-		"data":    wordlistData,
-		"page":    page,
-		"limit":   limit,
-		"total":   total,
+		"success":           true,
+		"data":              wordlistData,
+		"page":              page,
+		"limit":             limit,
+		"total":             total,
+		"public_wordlists":  publicWordlists,
+		"private_wordlists": privateWordlists,
 	})
 }
