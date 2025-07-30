@@ -103,7 +103,7 @@ func ListUserScans(c echo.Context) error {
 			CreatedAt:  scan.CreatedAt.Format(time.RFC3339),
 			HTMLPage:   utils.GetScanPage(scan.Slug),
 			APIPage:    utils.GetScanApiPage(c, scan.Slug),
-			ReportPage: utils.GetScanReportPage(c, scan.Slug),
+			ReportPage: utils.GetScanApiReportPage(c, scan.Slug),
 		})
 	}
 
