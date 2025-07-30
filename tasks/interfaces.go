@@ -33,6 +33,19 @@ type SiteAnalysis struct {
 	Recommendations []string         `json:"recommendations"`
 }
 
+type CORSScanResult struct {
+	URL              string `json:"url"`
+	Origin           string `json:"origin,omitempty"`
+	Status           int    `json:"status"`
+	AllowOrigin      string `json:"allow_origin,omitempty"`
+	AllowMethods     string `json:"allow_methods,omitempty"`
+	AllowHeaders     string `json:"allow_headers,omitempty"`
+	AllowCredentials string `json:"allow_credentials,omitempty"`
+	Permissive       bool   `json:"permissive"`
+	Reflected        bool   `json:"reflected"`
+	Error            string `json:"error,omitempty"`
+}
+
 type MultiSiteResponse struct {
 	Success       bool           `json:"success"`
 	Sites         []SiteAnalysis `json:"data"`

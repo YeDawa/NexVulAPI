@@ -46,6 +46,7 @@ type Scans struct {
 	Robots     string    `gorm:"type:text"`
 	Wordlist   uint      `gorm:"size:255"`
 	Data       string    `gorm:"type:text"`
+	CORS       string    `gorm:"type:text"`
 	Public     bool      `gorm:"default:true"`
 	CreatedAt  time.Time `gorm:"autoCreateTime"`
 }

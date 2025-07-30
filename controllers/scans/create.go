@@ -24,6 +24,7 @@ type ScanRequest struct {
 	URLs         []string `json:"urls"`
 	Public       bool     `json:"public"`
 	Domains      []string `json:"domains"`
+	CORS         []string `json:"cors"`
 	WordlistData string   `json:"wordlist_url"`
 }
 
@@ -56,6 +57,7 @@ func ScanHandler(c echo.Context) error {
 	domains := req.Domains
 	if len(domains) == 0 {
 		domainSet := make(map[string]struct{})
+
 		for _, u := range req.URLs {
 			d, err := tasks.ExtractDomain(u)
 			if err == nil && d != "" {
@@ -80,7 +82,7 @@ func ScanHandler(c echo.Context) error {
 		}
 
 		WordlistData = Wordlist{
-			Id:  wordlist.Id,
+			Id: wordlist.Id,
 		}
 
 		wordlistSlice, err := tasks.FetchRemoteWordlist(wordlist.Url)
@@ -125,12 +127,27 @@ func ScanHandler(c echo.Context) error {
 	}
 
 	var robotsResults []tasks.RobotsData
+	var corsResults []tasks.CORSScanResult
+
 	for _, url := range req.URLs {
 		report, err := tasks.ParseRobotsTxt(url)
-		
+
 		if err == nil && len(report.Directives) > 0 {
 			robotsResults = append(robotsResults, report)
 		}
+
+		corsScan, err := tasks.ScanCORS(url)
+		if err == nil {
+			corsResults = append(corsResults, *corsScan)
+		}
+	}
+
+	jsonCorsResults, err := json.Marshal(corsResults)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"error":   "Failed to serialize CORS data",
+		})
 	}
 
 	jsonRobotsData, err := json.Marshal(robotsResults)
@@ -175,6 +192,7 @@ func ScanHandler(c echo.Context) error {
 		Slug:      slug,
 		Public:    req.Public,
 		Urls:      string(jsonUrlsData),
+		CORS:      string(jsonCorsResults),
 		CreatedAt: time.Now(),
 		Data:      string(jsonResultsData),
 		Robots:    string(jsonRobotsData),
