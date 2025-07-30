@@ -70,7 +70,12 @@ func ListUserScans(c echo.Context) error {
 	query = query.Order(orderBy)
 
 	var total int64
+	var publicScans int64
+	var privateScans int64
+
 	query.Model(&models.Scans{}).Count(&total)
+	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND public = 'true'", userID).Count(&publicScans)
+	configs.DB.Model(&models.Scans{}).Where("user_id = ? AND public = 'false'", userID).Count(&privateScans)
 
 	var scansResponse []models.Scans
 	result := query.Limit(limit).Offset(offset).Find(&scansResponse)
@@ -108,10 +113,12 @@ func ListUserScans(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"success": true,
-		"data":    scanData,
-		"page":    page,
-		"limit":   limit,
-		"total":   total,
+		"success":       true,
+		"data":          scanData,
+		"page":          page,
+		"limit":         limit,
+		"total":         total,
+		"public_scans":  publicScans,
+		"private_scans": privateScans,
 	})
 }
