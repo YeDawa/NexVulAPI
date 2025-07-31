@@ -37,7 +37,7 @@ func CreateUser(c echo.Context) error {
 		})
 	}
 
-	apiKey := "hs_" + generator.String(32, 36)
+	apiKey := "nv-" + generator.String(32, 36)
 
 	hashedPassword, err := security.HashPassword(req.Password)
 	if err != nil {
