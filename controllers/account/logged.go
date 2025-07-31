@@ -93,6 +93,7 @@ func UserLogged(c echo.Context) error {
 		"status":     user.Status,
 		"created_at": user.CreatedAt,
 		"api_key":    user.ApiKey,
+		"timezone":   user.Timezone,
 		"avatar":     gravatar.New(user.Email).Size(300).AvatarURL(),
 		"profile":    profileData,
 		"scans":      statsScans,
