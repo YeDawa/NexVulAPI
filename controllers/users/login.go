@@ -8,6 +8,7 @@ import (
 	"nexvul/security"
 
 	"nexvul/core"
+	"nexvul/validators"
 	"nexvul/generator"
 
 	"github.com/labstack/echo/v4"
@@ -32,7 +33,7 @@ func Login(c echo.Context) error {
 		})
 	}
 
-	if !core.ValidateEmail(req.Email) {
+	if !validators.ValidateEmail(req.Email) {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"success": false,
 			"error":   "Invalid email format",

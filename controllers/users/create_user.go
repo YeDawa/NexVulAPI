@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"nexvul/configs"
-	"nexvul/core"
+	"nexvul/validators"
 	"nexvul/generator"
 	"nexvul/models"
 	"nexvul/security"
@@ -30,7 +30,7 @@ func CreateUser(c echo.Context) error {
 		})
 	}
 
-	if !core.ValidateEmail(req.Email) {
+	if !validators.ValidateEmail(req.Email) {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"success": false,
 			"error":   "Invalid email format",

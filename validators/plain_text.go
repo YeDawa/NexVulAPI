@@ -15,7 +15,7 @@ func ValidateTextPlainURL(url string) error {
 
 	contentType := resp.Header.Get("Content-Type")
 	if !strings.HasPrefix(contentType, "text/plain") {
-		return fmt.Errorf("Invalid content type: %s", contentType)
+		return fmt.Errorf("invalid content type: %s", contentType)
 	}
 
 	return nil
