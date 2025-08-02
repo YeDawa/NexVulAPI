@@ -4,7 +4,8 @@ import (
 	"bufio"
 	"net/http"
 	"strconv"
-	"strings"
+
+	"nexvul/validators"
 
 	"github.com/labstack/echo/v4"
 )
@@ -13,23 +14,14 @@ func GetWordlistPreviewContent(c echo.Context) error {
 	url := c.QueryParam("url")
 	maxLinesParam := c.QueryParam("max_lines")
 
-	resp, err := http.Head(url)
-	if err != nil {
+	if err := validators.ValidateTextPlainURL(url); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"success": false,
-			"error":   "Failed to fetch remote file headers",
+			"error":   err.Error(),
 		})
 	}
 
-	contentType := resp.Header.Get("Content-Type")
-	if !strings.HasPrefix(contentType, "text/plain") {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"success": false,
-			"error":   "Only text/plain files are allowed",
-		})
-	}
-
-	resp, err = http.Get(url)
+	resp, err := http.Get(url)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"success": false,
