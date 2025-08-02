@@ -29,32 +29,39 @@ type Scans struct {
 func ListPublicScans(c echo.Context) error {
 	pageStr := c.QueryParam("page")
 	page, err := strconv.Atoi(pageStr)
-
 	if err != nil || page < 1 {
 		page = 1
 	}
 
 	limitStr := c.QueryParam("limit")
 	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit < 1 {
+	if err != nil || limit < 1 || limit > 100 {
 		limit = 50
 	}
 
 	offset := (page - 1) * limit
+
 	search := strings.TrimSpace(c.QueryParam("search"))
-	order := c.QueryParam("order")
+	search = strings.ReplaceAll(search, "%", "")
+	search = strings.ReplaceAll(search, "'", "")
+	search = strings.ReplaceAll(search, "*", "")
+	search = strings.ReplaceAll(search, "\"", "")
+
+	order := strings.ToLower(strings.TrimSpace(c.QueryParam("order")))
+
+	allowedOrders := map[string]string{
+		"asc":  "created_at ASC",
+		"desc": "created_at DESC",
+	}
+
+	orderBy, ok := allowedOrders[order]
+	if !ok {
+		orderBy = "created_at DESC"
+	}
 
 	query := configs.DB.Where("public = ?", true)
 	if search != "" {
 		query = query.Where("slug LIKE ? OR urls LIKE ?", "%"+search+"%", "%"+search+"%")
-	}
-
-	var orderBy string
-	switch order {
-	case "created_at asc", "created_at desc":
-		orderBy = "created_at " + strings.ToUpper(strings.Split(order, " ")[1])
-	default:
-		orderBy = "created_at DESC"
 	}
 
 	query = query.Order(orderBy)
@@ -64,7 +71,6 @@ func ListPublicScans(c echo.Context) error {
 
 	var scansResponse []models.Scans
 	result := query.Limit(limit).Offset(offset).Find(&scansResponse)
-
 	if result.Error != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"success": false,
@@ -77,7 +83,6 @@ func ListPublicScans(c echo.Context) error {
 		user := users.GetUsernameByID(scan.UserId)
 
 		var urls []string
-
 		if err := json.Unmarshal([]byte(scan.Urls), &urls); err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"success": false,
