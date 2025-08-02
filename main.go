@@ -55,6 +55,7 @@ func main() {
 
 	// API's Scans
 	e.POST("/scan", scans.ScanHandler)
+	e.GET("/scans", scans.ListPublicScans)
 	e.GET("/scan/:id", get_scan.GetScanDetails)
 	e.GET("/scan/:id/export", get_scan.GenerateReport)
 
