@@ -13,7 +13,6 @@ func GetWordlistPreviewContent(c echo.Context) error {
 	url := c.QueryParam("url")
 	maxLinesParam := c.QueryParam("max_lines")
 
-	// Only allow .txt files
 	resp, err := http.Head(url)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
@@ -40,7 +39,10 @@ func GetWordlistPreviewContent(c echo.Context) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{"success": false, "error": "Failed to fetch remote file"})
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"error":   "Failed to fetch remote file",
+		})
 	}
 
 	c.Response().Header().Set("Content-Type", "text/plain; charset=utf-8")
