@@ -63,6 +63,7 @@ type ScanOwner struct {
 }
 
 type ScanWordlist struct {
+	Slug       string `json:"slug,omitempty"`
 	TotalLines int    `json:"total_lines,omitempty"`
 	HtmlPage   string `json:"html_page,omitempty"`
 	Name       string `json:"name,omitempty"`
@@ -167,6 +168,7 @@ func GetScanDetails(c echo.Context) error {
 		}
 
 		wordlistData = ScanWordlist{
+			Slug:       wordlist.Slug,
 			Name:       wordlist.Name,
 			TotalLines: wordlist.TotalLines,
 			HtmlPage:   utils.GetWordlistPage(wordlist.Slug),
