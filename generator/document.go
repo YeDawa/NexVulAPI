@@ -13,7 +13,12 @@ import (
 	"github.com/go-pdf/fpdf"
 )
 
-func GeneratePDF(sites []tasks.SiteAnalysis, htmlPage, wordlist string, subdomains []tasks.SubdomainInfo) ([]byte, error) {
+func GeneratePDF(
+	sites []tasks.SiteAnalysis,
+	htmlPage, wordlist string,
+	subdomains []tasks.SubdomainInfo,
+	cors []tasks.CORSScanResult,
+) ([]byte, error) {
 	if err := utils.DownloadFontIfNeeded(); err != nil {
 		return nil, fmt.Errorf("font download error: %w", err)
 	}
@@ -86,8 +91,10 @@ func GeneratePDF(sites []tasks.SiteAnalysis, htmlPage, wordlist string, subdomai
 		pdf.CellFormat(0, 10,
 			fmt.Sprintf("Generated at %s — Page %d",
 				time.Now().Format("2006-01-02 15:04:05"),
-				pdf.PageNo()),
-			"", 0, "C", false, 0, "")
+				pdf.PageNo(),
+			),
+			"", 0, "C", false, 0, "",
+		)
 	})
 
 	for _, site := range sites {
@@ -202,6 +209,77 @@ func GeneratePDF(sites []tasks.SiteAnalysis, htmlPage, wordlist string, subdomai
 			pdf.SetFont("Roboto", "", 10)
 			if rec.Domain == siteDomain {
 				pdf.MultiCell(0, 5, "• "+utils.SanitizeText(rec.Subdomain), "", "", false)
+			}
+		}
+
+		for _, item := range cors {
+			pdf.SetFont("Roboto", "", 10)
+			pdf.MultiCell(0, 5, "• "+utils.SanitizeText(item.Origin), "", "", false)
+		}
+
+		pdf.AddPage()
+		pdf.SetFont("Roboto", "", 12)
+		pdf.SetFillColor(16, 19, 25)
+		pdf.SetTextColor(255, 255, 255)
+		pdf.CellFormat(0, 10, "CORS Analysis", "", 1, "L", true, 0, "")
+		pdf.SetTextColor(10, 15, 10)
+		pdf.Ln(4)
+
+		pdf.SetFont("Roboto", "", 10)
+		pdf.SetTextColor(0, 0, 0)
+
+		for _, corsResult := range cors {
+			if strings.Contains(corsResult.URL, site.URL) {
+				pdf.SetFont("Roboto", "", 10)
+				pdf.MultiCell(0, 5, "URL: "+utils.SanitizeText(corsResult.URL), "", "", false)
+				pdf.Ln(4)
+
+				pdf.SetFont("Roboto", "", 10)
+				pdf.MultiCell(0, 5, "Origin: "+utils.SanitizeText(corsResult.Origin), "", "", false)
+				pdf.Ln(4)
+
+				pdf.MultiCell(0, 5, fmt.Sprintf("Status: %d", corsResult.Status), "", "", false)
+				pdf.Ln(4)
+
+				if corsResult.Permissive {
+					pdf.MultiCell(0, 5, "Permissive: Yes ⚠️", "", "", false)
+				} else {
+					pdf.MultiCell(0, 5, "Permissive: No ✅", "", "", false)
+				}
+				pdf.Ln(4)
+
+				if corsResult.Reflected {
+					pdf.MultiCell(0, 5, "Reflected: Yes ⚠️", "", "", false)
+				} else {
+					pdf.MultiCell(0, 5, "Reflected: No ✅", "", "", false)
+				}
+				pdf.Ln(4)
+
+				if corsResult.AllowOrigin != "" {
+					pdf.MultiCell(0, 5, "Access-Control-Allow-Origin: "+utils.SanitizeText(corsResult.AllowOrigin), "", "", false)
+				}
+				pdf.Ln(4)
+
+				if corsResult.AllowMethods != "" {
+					pdf.MultiCell(0, 5, "Access-Control-Allow-Methods: "+utils.SanitizeText(corsResult.AllowMethods), "", "", false)
+				}
+				pdf.Ln(4)
+
+				if corsResult.AllowHeaders != "" {
+					pdf.MultiCell(0, 5, "Access-Control-Allow-Headers: "+utils.SanitizeText(corsResult.AllowHeaders), "", "", false)
+				}
+				pdf.Ln(4)
+
+				if corsResult.AllowCredentials != "" {
+					pdf.MultiCell(0, 5, "Access-Control-Allow-Credentials: "+utils.SanitizeText(corsResult.AllowCredentials), "", "", false)
+				}
+				pdf.Ln(4)
+
+				if corsResult.Error != "" {
+					pdf.MultiCell(0, 5, "Error: "+utils.SanitizeText(corsResult.Error), "", "", false)
+				}
+
+				pdf.Ln(4)
 			}
 		}
 	}

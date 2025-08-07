@@ -39,6 +39,7 @@ func GenerateReport(c echo.Context) error {
 	var scanData []ScanData
 	var urls []string
 	var subdomainInfo []tasks.SubdomainInfo
+	var corsResults []tasks.CORSScanResult
 
 	if err := json.Unmarshal([]byte(scans.Data), &scanData); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -52,6 +53,20 @@ func GenerateReport(c echo.Context) error {
 			"success": false,
 			"error":   "Failed to deserialize 'urls' field: " + err.Error(),
 		})
+	}
+
+	if scans.CORS != "" {
+		if err := json.Unmarshal([]byte(scans.CORS), &corsResults); err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"success": false,
+				"error":   "Failed to deserialize 'CORS' field: " + err.Error(),
+			})
+		}
+
+		corsMap := make(map[string][]tasks.CORSScanResult)
+		for _, info := range corsResults {
+			corsMap[info.URL] = append(corsMap[info.URL], info)
+		}
 	}
 
 	if scans.Subdomains != "" {
@@ -91,12 +106,12 @@ func GenerateReport(c echo.Context) error {
 		}
 
 		wordlistData = ScanWordlist{
-			HtmlPage:   utils.GetWordlistPage(wordlist.Slug),
+			HtmlPage: utils.GetWordlistPage(wordlist.Slug),
 		}
 	}
 
 	htmlPage := utils.GetScanPage(scans.Slug)
-	pdfBytes, err := generator.GeneratePDF(analyses, htmlPage, wordlistData.HtmlPage, subdomainInfo)
+	pdfBytes, err := generator.GeneratePDF(analyses, htmlPage, wordlistData.HtmlPage, subdomainInfo, corsResults)
 
 	if err != nil {
 		fmt.Println("GenerateMultiSitePDF error:", err)
