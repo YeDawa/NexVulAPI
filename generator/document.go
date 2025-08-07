@@ -242,16 +242,16 @@ func GeneratePDF(
 				pdf.Ln(4)
 
 				if corsResult.Permissive {
-					pdf.MultiCell(0, 5, "Permissive: Yes ⚠️", "", "", false)
+					pdf.MultiCell(0, 5, "Permissive: Yes (INSECURE)", "", "", false)
 				} else {
-					pdf.MultiCell(0, 5, "Permissive: No ✅", "", "", false)
+					pdf.MultiCell(0, 5, "Permissive: No (SECURE)", "", "", false)
 				}
 				pdf.Ln(4)
 
 				if corsResult.Reflected {
-					pdf.MultiCell(0, 5, "Reflected: Yes ⚠️", "", "", false)
+					pdf.MultiCell(0, 5, "Permissive: Yes (INSECURE)", "", "", false)
 				} else {
-					pdf.MultiCell(0, 5, "Reflected: No ✅", "", "", false)
+					pdf.MultiCell(0, 5, "Permissive: No (SECURE)", "", "", false)
 				}
 				pdf.Ln(4)
 
