@@ -8,6 +8,7 @@ const (
 	DomainName     = ".nexvul.com"
 	LogoPath       = "./assets/logo.png"
 	HTMLPageURI    = "https://nexvul.com"
+	ShotlinkAPI    = "https://shotlink.nexvul.com/get?url="
 	FontURL        = "https://github.com/melroy89/Roboto/raw/refs/heads/main/RobotoTTF/Roboto-Regular.ttf"
 	FontPath       = "./temp_fonts/Roboto-Regular.ttf"
 )

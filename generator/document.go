@@ -3,6 +3,7 @@ package generator
 import (
 	"bytes"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -68,7 +69,6 @@ func GeneratePDF(
 	pdf.Cell(0, 10, fmt.Sprintf("Total Sites Analyzed: %d", len(sites)))
 	pdf.Ln(8)
 
-	pdf.SetFont("Roboto", "", 10)
 	var totalExecutionTime int64
 	for _, site := range sites {
 		totalExecutionTime += site.ExecutionTime.Milliseconds()
@@ -110,11 +110,9 @@ func GeneratePDF(
 		pdf.SetFont("Roboto", "", 10)
 		pdf.SetTextColor(0, 0, 0)
 
-		pdf.SetFont("Roboto", "", 10)
 		pdf.WriteLinkString(10, fmt.Sprintf("Site: %s", site.URL), site.URL)
 		pdf.Ln(8)
 
-		pdf.SetFont("Roboto", "", 10)
 		pdf.WriteLinkString(10, fmt.Sprintf("IP: %s", site.Ip), site.Ip)
 		pdf.Ln(8)
 
@@ -139,8 +137,38 @@ func GeneratePDF(
 		pdf.Cell(0, 8, fmt.Sprintf("Execution time: %d ms", site.ExecutionTime.Milliseconds()))
 		pdf.Ln(8)
 
-		pdf.AddPage()
+		// === Add a screenshot of URL ===
+		screenshotURL := fmt.Sprintf("%s%s", configs.ShotlinkAPI, site.URL)
+		resp, err := http.Get(screenshotURL)
+		if err == nil {
+			defer resp.Body.Close()
+			if resp.StatusCode == http.StatusOK {
+				var imgBuf bytes.Buffer
+				if _, err := imgBuf.ReadFrom(resp.Body); err == nil {
+					imgType := "PNG"
+					if strings.Contains(http.DetectContentType(imgBuf.Bytes()), "jpeg") {
+						imgType = "JPG"
+					}
 
+					imgName := "screenshot_" + strings.ReplaceAll(site.URL, "/", "_")
+					pdf.RegisterImageOptionsReader(imgName, fpdf.ImageOptions{
+						ImageType: imgType,
+						ReadDpi:   true,
+					}, bytes.NewReader(imgBuf.Bytes()))
+
+					pageW, _ := pdf.GetPageSize()
+					imgW := 180.0
+					imgX := (pageW - imgW) / 2
+
+					pdf.ImageOptions(imgName, imgX, pdf.GetY()+5, imgW, 0, false,
+						fpdf.ImageOptions{ImageType: imgType, ReadDpi: true}, 0, "")
+					pdf.Ln(85)
+				}
+			}
+		}
+
+		// === Headers Analysis ===
+		pdf.AddPage()
 		pdf.SetFont("Roboto", "", 12)
 		pdf.SetFillColor(16, 19, 25)
 		pdf.SetTextColor(255, 255, 255)
@@ -193,6 +221,7 @@ func GeneratePDF(
 			}
 		}
 
+		// Subdomains
 		pdf.Ln(4)
 		pdf.SetFont("Roboto", "", 12)
 		pdf.SetFillColor(16, 19, 25)
@@ -212,12 +241,8 @@ func GeneratePDF(
 			}
 		}
 
-		for _, item := range cors {
-			pdf.SetFont("Roboto", "", 10)
-			pdf.MultiCell(0, 5, "• "+utils.SanitizeText(item.Origin), "", "", false)
-		}
-
-		pdf.AddPage()
+		// CORS Analysis
+		pdf.Ln(4)
 		pdf.SetFont("Roboto", "", 12)
 		pdf.SetFillColor(16, 19, 25)
 		pdf.SetTextColor(255, 255, 255)
@@ -230,11 +255,9 @@ func GeneratePDF(
 
 		for _, corsResult := range cors {
 			if strings.Contains(corsResult.URL, site.URL) {
-				pdf.SetFont("Roboto", "", 10)
 				pdf.MultiCell(0, 5, "URL: "+utils.SanitizeText(corsResult.URL), "", "", false)
 				pdf.Ln(4)
 
-				pdf.SetFont("Roboto", "", 10)
 				pdf.MultiCell(0, 5, "Origin: "+utils.SanitizeText(corsResult.Origin), "", "", false)
 				pdf.Ln(4)
 
@@ -249,9 +272,9 @@ func GeneratePDF(
 				pdf.Ln(4)
 
 				if corsResult.Reflected {
-					pdf.MultiCell(0, 5, "Permissive: Yes (INSECURE)", "", "", false)
+					pdf.MultiCell(0, 5, "Reflected: Yes (INSECURE)", "", "", false)
 				} else {
-					pdf.MultiCell(0, 5, "Permissive: No (SECURE)", "", "", false)
+					pdf.MultiCell(0, 5, "Reflected: No (SECURE)", "", "", false)
 				}
 				pdf.Ln(4)
 
