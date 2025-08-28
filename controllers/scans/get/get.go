@@ -44,6 +44,7 @@ type ScanResponse struct {
 	Data       []ScanData             `json:"data"`
 	Urls       []string               `json:"urls"`
 	CORS       []tasks.CORSScanResult `json:"cors,omitempty"`
+	SSL        []tasks.CertInfo       `json:"ssl,omitempty"`
 	Subdomains []DomainGroup          `json:"subdomains,omitempty"`
 	Wordlist   ScanWordlist           `json:"wordlist,omitempty"`
 	Robots     []tasks.RobotsData     `json:"robots,omitempty"`
@@ -100,6 +101,7 @@ func GetScanDetails(c echo.Context) error {
 	var domainGroups []DomainGroup
 	var robots []tasks.RobotsData
 	var cors []tasks.CORSScanResult
+	var sslResults []tasks.CertInfo
 
 	if scans.Subdomains != "" {
 		var subdomainList []SubdomainInfo
@@ -144,6 +146,13 @@ func GetScanDetails(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"success": false,
 			"error":   "Failed to deserialize 'cors' field: " + err.Error(),
+		})
+	}
+
+	if err := json.Unmarshal([]byte(scans.Ssl), &sslResults); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"error":   "Failed to deserialize 'ssl' field: " + err.Error(),
 		})
 	}
 
@@ -192,6 +201,7 @@ func GetScanDetails(c echo.Context) error {
 		Subdomains: domainGroups,
 		Robots:     robots,
 		Urls:       urls,
+		SSL:        sslResults,
 		Public:     scans.Public,
 		Wordlist:   wordlistData,
 		HtmlPage:   utils.GetScanPage(scans.Slug),

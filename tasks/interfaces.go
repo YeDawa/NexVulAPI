@@ -70,6 +70,16 @@ type RobotsData struct {
 	Directives []RobotsDirective `json:"directives"`
 }
 
+type CertInfo struct {
+	Subject            string    `json:"subject"`
+	Issuer             string    `json:"issuer"`
+	NotBefore          time.Time `json:"not_before"`
+	NotAfter           time.Time `json:"not_after"`
+	DNSNames           []string  `json:"dns_names"`
+	SignatureAlgorithm string    `json:"signature_algorithm"`
+	PublicKey          string    `json:"public_key"`
+}
+
 type ScanHeadersResponseReport struct {
 	URL             string      `json:"url"`
 	Server          string      `json:"server"`

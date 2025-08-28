@@ -45,6 +45,7 @@ type Scans struct {
 	Subdomains string    `gorm:"type:text"`
 	Robots     string    `gorm:"type:text"`
 	Wordlist   uint      `gorm:"size:255"`
+	Ssl        string    `gorm:"type:text"`
 	Data       string    `gorm:"type:text"`
 	CORS       string    `gorm:"type:text"`
 	Public     bool      `gorm:"default:true"`

@@ -128,6 +128,7 @@ func ScanHandler(c echo.Context) error {
 
 	var robotsResults []tasks.RobotsData
 	var corsResults []tasks.CORSScanResult
+	var sslResults []tasks.CertInfo
 
 	for _, url := range req.URLs {
 		report, err := tasks.ParseRobotsTxt(url)
@@ -139,6 +140,12 @@ func ScanHandler(c echo.Context) error {
 		corsScan, err := tasks.ScanCORS(url)
 		if err == nil {
 			corsResults = append(corsResults, *corsScan)
+		}
+
+		domain, _ := tasks.ExtractDomain(url)
+		sslScan, err := tasks.GetCertificateInfo(domain)
+		if err == nil {
+			sslResults = append(sslResults, sslScan...)
 		}
 	}
 
@@ -183,6 +190,14 @@ func ScanHandler(c echo.Context) error {
 		})
 	}
 
+	jsonSSLData, err := json.Marshal(sslResults)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"error":   "Failed to serialize SSL data",
+		})
+	}
+
 	if !req.Public {
 		req.Public = true
 	}
@@ -193,6 +208,7 @@ func ScanHandler(c echo.Context) error {
 		Public:    req.Public,
 		Urls:      string(jsonUrlsData),
 		CORS:      string(jsonCorsResults),
+		Ssl:       string(jsonSSLData),
 		CreatedAt: time.Now(),
 		Data:      string(jsonResultsData),
 		Robots:    string(jsonRobotsData),
