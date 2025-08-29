@@ -96,10 +96,10 @@ func GetScanDetails(c echo.Context) error {
 		})
 	}
 
-	var scanData []ScanData
 	var urls []string
-	var domainGroups []DomainGroup
+	var scanData []ScanData
 	var robots []tasks.RobotsData
+	var domainGroups []DomainGroup
 	var cors []tasks.CORSScanResult
 	var sslResults []tasks.CertInfo
 
